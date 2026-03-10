@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import InventoryMovement
+from .serializers import InventoryMovementSerializer
 
-# Create your views here.
+
+class InventoryMovementViewSet(viewsets.ModelViewSet):
+    queryset = InventoryMovement.objects.all()
+    serializer_class = InventoryMovementSerializer
