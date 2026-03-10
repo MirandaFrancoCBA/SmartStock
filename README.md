@@ -1,159 +1,243 @@
 # SmartStock – Inventory Management System
 
-SmartStock is a full-stack inventory management system designed to manage products, suppliers, and stock movements efficiently.
-This project was developed as a professional portfolio project to demonstrate backend architecture, REST API development, and full-stack integration.
+SmartStock is a backend-driven inventory management system designed to manage products, suppliers, and stock movements efficiently.
 
-## Overview
-
-SmartStock allows businesses to manage their inventory through a structured backend system with automated stock updates, supplier tracking, and detailed inventory movements.
-
-The system is built with a modern backend architecture using Django and Django REST Framework and will be extended with an Angular frontend.
+This project was developed as a **professional portfolio project** to demonstrate backend architecture, REST API development, and scalable service design using modern Python technologies.
 
 ---
 
-## Tech Stack
+# Overview
 
-### Backend
+SmartStock allows businesses to manage their inventory through a structured backend system with:
 
-* Python 3
+* Product catalog management
+* Supplier tracking
+* Inventory movement history
+* Automated stock updates
+* REST API for frontend integration
+
+The backend is built with **Django and Django REST Framework**, following a modular architecture and best practices for API development.
+
+---
+
+# Tech Stack
+
+## Backend
+
+* Python
 * Django
 * Django REST Framework
+* django-filter
+* drf-spectacular (OpenAPI documentation)
+
+## Database
+
 * SQLite (development)
 * PostgreSQL (planned for production)
 
-### Frontend (planned)
+## Frontend (planned)
 
 * Angular
 * TypeScript
-* Chart.js (for dashboards)
+* Chart.js
 
-### DevOps (planned)
+## DevOps (planned)
 
 * Docker
 * Railway / Render deployment
 
 ---
 
-## Core Features
+# Core Features
 
-### Product Management
+## Product Management
 
 * Create and manage products
-* Assign categories and suppliers
 * SKU management
+* Product categories
+* Supplier relationships
 * Price and stock tracking
 
-### Supplier Management
+---
+
+## Supplier Management
 
 * Store supplier information
-* Track supplier-product relationships
+* Track which suppliers provide each product
 
-### Inventory Movements
+---
 
-* Track incoming and outgoing stock
-* Movement history
-* User tracking for inventory actions
+## Inventory Movements
 
-### Automated Stock Updates
+* Register **IN** and **OUT** stock movements
+* Track movement history
+* Record the user performing each movement
 
-Stock is automatically updated using Django signals when a movement is created.
+---
+
+## Automated Stock Updates
+
+Stock levels are automatically updated using **Django Signals** when a movement is created.
 
 Example:
 
-IN movement → increases stock
+```
+IN movement  → increases stock
 OUT movement → decreases stock
+```
 
-### REST API
+---
 
-The backend exposes a RESTful API for integration with the Angular frontend.
+# REST API
 
-API endpoints include:
+The backend exposes a RESTful API for integration with external clients such as Angular applications.
 
+Example endpoints:
+
+```
 /api/products
 /api/categories
 /api/suppliers
 /api/movements
+```
 
 ---
 
-## Project Structure
+# API Features
 
+### Filtering
+
+```
+/api/products/?category=1
+```
+
+### Searching
+
+```
+/api/products/?search=maceta
+```
+
+### Ordering
+
+```
+/api/products/?ordering=price
+/api/products/?ordering=-price
+```
+
+### Pagination
+
+```
+/api/products/?page=2
+```
+
+---
+
+# API Documentation
+
+Interactive API documentation is available using OpenAPI.
+
+Swagger UI:
+
+```
+/api/docs/
+```
+
+ReDoc:
+
+```
+/api/redoc/
+```
+
+These interfaces allow developers to explore and test the API directly from the browser.
+
+---
+
+# Project Structure
+
+```
 backend/
-├── config
-├── products
-├── inventory
-├── services
+│
+├── config/        # Django project configuration
+├── products/      # Product domain models and API
+├── inventory/     # Inventory movement logic
+├── services/      # Business logic layer
+│
 ├── manage.py
 └── db.sqlite3
-
-products → product domain logic
-inventory → inventory movements and stock logic
+```
 
 ---
 
-## Installation
+# Installation
 
 Clone the repository:
 
+```
 git clone https://github.com/YOUR_USERNAME/smartstock.git
+```
 
-Navigate into the project:
+Navigate to the backend:
 
+```
 cd smartstock/backend
+```
 
-Create a virtual environment:
+Create virtual environment:
 
+```
 python -m venv venv
+```
 
-Activate the environment:
+Activate it:
 
 Windows:
+
+```
 venv\Scripts\activate
+```
 
 Install dependencies:
 
+```
 pip install -r requirements.txt
+```
 
 Run migrations:
 
+```
 python manage.py migrate
+```
 
-Create superuser:
+Create admin user:
 
+```
 python manage.py createsuperuser
+```
 
-Run server:
+Run the server:
 
+```
 python manage.py runserver
+```
 
 ---
 
-## API Testing
-
-Open in browser:
-
-http://127.0.0.1:8000/api/
-
-Django REST Framework provides a browsable API for testing endpoints.
-
----
-
-## Future Improvements
+# Future Improvements
 
 * JWT authentication
 * Role-based permissions
-* Advanced filtering and search
-* Dashboard analytics
-* Angular frontend
-* Docker deployment
+* Advanced reporting endpoints
+* Angular frontend dashboard
+* Docker containerization
 * PostgreSQL production database
 * Real-time stock updates (WebSockets)
 
 ---
 
-## Author
+# Author
 
-Franco Rodrigo Miranda
+**Franco Rodrigo Miranda**
+
 Software Development Student – Argentina
 
 LinkedIn

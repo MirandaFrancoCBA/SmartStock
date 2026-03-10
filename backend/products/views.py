@@ -20,3 +20,16 @@ class SupplierViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    
+    filterset_fields = ['category', 'supplier']
+
+    search_fields = [
+        'name',
+        'sku'
+    ]
+
+    ordering_fields = [
+        'price',
+        'stock',
+        'name'
+    ]
