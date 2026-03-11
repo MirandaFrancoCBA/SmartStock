@@ -10,6 +10,16 @@ from drf_spectacular.views import ( # type: ignore
     SpectacularSwaggerView,
     SpectacularRedocView
 )
+from inventory.views import (
+    inventory_value_report,
+    low_stock_report,
+    top_products_report
+)
+
+from rest_framework_simplejwt.views import ( # type: ignore
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 router = DefaultRouter()
 
@@ -37,4 +47,16 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name='schema'),
         name='redoc'
     ),
+    
+    path("api/reports/inventory-value/", inventory_value_report),
+    
+    
+    path("api/reports/low-stock/", low_stock_report),
+    
+    
+    path("api/reports/top-products/", top_products_report),
+    
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
