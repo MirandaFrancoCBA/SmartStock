@@ -19,6 +19,16 @@ class InventoryMovementViewSet(viewsets.ModelViewSet):
     serializer_class = InventoryMovementSerializer
     permission_classes = [InventoryPermission]
 
+    def perform_create(self, serializer):
+
+        movement = serializer.save(user=self.request.user)
+
+        logger.info(
+            f"Inventory movement created by {self.request.user} "
+            f"for product {movement.product.name} "
+            f"quantity {movement.quantity}"
+        )
+
 
 @api_view(["GET"])
 @permission_classes([InventoryPermission])

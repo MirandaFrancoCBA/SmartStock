@@ -1,0 +1,11 @@
+[2026-03-12 17:21:02,969] INFO smartstock User admin requested inventory value report
+[2026-03-12 17:21:02,969] INFO smartstock Calculating total inventory value
+[2026-03-12 17:21:02,969] INFO smartstock Inventory value calculated: None
+[2026-03-12 17:25:26,341] INFO smartstock User admin requested inventory value report
+[2026-03-12 17:25:26,341] INFO smartstock Calculating total inventory value
+[2026-03-12 17:25:26,342] INFO smartstock Inventory value calculated: None
+[2026-03-12 17:29:27,506] INFO smartstock User admin requested inventory value report
+[2026-03-12 17:29:27,507] INFO smartstock Calculating total inventory value
+[2026-03-12 17:29:27,510] INFO smartstock Inventory value calculated: None
+[2026-03-12 17:29:27,514] INFO smartstock Calculating total inventory value
+[2026-03-12 17:29:27,515] INFO smartstock Inventory value calculated: 90
