@@ -5,7 +5,11 @@ import logging
 from .models import InventoryMovement
 from .serializers import InventoryMovementSerializer
 from .permissions import InventoryPermission
-
+from services.inventory_analytics import (
+    get_low_stock_products,
+    get_top_products,
+    get_inventory_value
+)
 from services.inventory_service import (
     get_inventory_value,
     get_low_stock_products,
@@ -67,3 +71,39 @@ def top_products_report(request):
     return Response(data)
 
 logger = logging.getLogger("smartstock")
+
+@api_view(["GET"])
+def inventory_value_view(request):
+    """
+    Returns total value of inventory.
+    """
+
+    result = get_inventory_value()
+
+    return Response(result)
+
+
+@api_view(["GET"])
+def low_stock_products_view(request):
+    """
+    Returns products with low stock.
+    """
+
+    threshold = int(request.GET.get("threshold", 5))
+
+    result = get_low_stock_products(threshold)
+
+    return Response(result)
+
+
+@api_view(["GET"])
+def top_products_view(request):
+    """
+    Returns products with highest stock.
+    """
+
+    limit = int(request.GET.get("limit", 5))
+
+    result = get_top_products(limit)
+
+    return Response(result)
