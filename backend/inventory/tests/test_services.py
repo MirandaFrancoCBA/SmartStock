@@ -1,37 +1,29 @@
 import pytest # type: ignore
-from products.models import Product, Category, Supplier
-from services.inventory_service import get_inventory_value
+from rest_framework.test import APIClient
+from django.contrib.auth.models import User, Group
+from inventory.tests.factories import ProductFactory
 
 
 @pytest.mark.django_db
 def test_inventory_value():
 
-    category = Category.objects.create(
-        name="Test Category"
+
+    admin_group = Group.objects.create(name="Admin")
+
+    user = User.objects.create_user(
+        username="admin",
+        password="testpass"
     )
 
-    supplier = Supplier.objects.create(
-        name="Test Supplier"
-    )
+    user.groups.add(admin_group)
 
-    Product.objects.create(
-        name="Test Product 1",
-        sku="SKU001",
-        category=category,
-        supplier=supplier,
-        price=10,
-        stock=5
-    )
+    ProductFactory(price=10, stock=5)
+    ProductFactory(price=20, stock=2)
 
-    Product.objects.create(
-        name="Test Product 2",
-        sku="SKU002",
-        category=category,
-        supplier=supplier,
-        price=20,
-        stock=2
-    )
+    client = APIClient()
+    client.force_authenticate(user=user)
 
-    result = get_inventory_value()
+    response = client.get("/api/reports/inventory-value/")
 
-    assert result["total_inventory_value"] == 90
+    assert response.status_code == 200
+    assert response.data["total_inventory_value"] == 90
