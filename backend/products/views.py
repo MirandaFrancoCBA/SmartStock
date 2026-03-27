@@ -6,6 +6,7 @@ from .serializers import (
     ProductSerializer
 )
 from .permissions import ProductPermission
+from rest_framework.permissions import AllowAny
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -21,7 +22,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [ProductPermission]
+    permission_classes = [AllowAny]
     
     filterset_fields = ['category', 'supplier']
 

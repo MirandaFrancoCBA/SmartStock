@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-(gj92)&j&dr7@hb4y&o)y_8*7+cw-1ptv%+#)irk5kf^x5g*cs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'backend']
 
 
 # Application definition
@@ -147,6 +147,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
@@ -207,6 +211,24 @@ LOGGING = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
 ]
+
+#CORS_ALLOWED_ORIGINS = [
+  #  "http://localhost:4200",
+  #  "http://127.0.0.1:4200",
+#]
+
+# Comentá las anteriores y poné esta:
+CORS_ALLOW_ALL_ORIGINS = True 
+
+# Asegurate de que esta opción esté en True (esto es clave para JWT)
+CORS_ALLOW_CREDENTIALS = True
+    
+    
