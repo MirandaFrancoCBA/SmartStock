@@ -1,23 +1,15 @@
 import { Routes } from '@angular/router';
+import { LoginComponent } from './features/login/login';
+import { DashboardComponent } from './features/dashboard/dashboard';
 import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
-  {
-    path: 'login',
-    loadComponent: () => import('./features/login/login').then(m => m.LoginComponent)
+  { path: 'login', component: LoginComponent },
+  { 
+    path: 'dashboard', 
+    component: DashboardComponent, 
+    canActivate: [authGuard] 
   },
-  {
-    path: 'dashboard',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/dashboard/dashboard').then(m => m.DashboardComponent)
-  },
-  {
-    path: '',
-    redirectTo: 'login',
-    pathMatch: 'full'
-  },
-  {
-    path: '**',
-    redirectTo: 'login'
-  }
+  { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirige la página en blanco al login
+  { path: '**', redirectTo: '/login' } // Cualquier ruta rara manda al login
 ];
