@@ -10,9 +10,12 @@ export class ProductService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8000/api/products/';
 
-  // Ahora acepta el número de página (por defecto la 1)
-  getProducts(page: number = 1): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}?page=${page}`);
+  getProducts(page: number = 1, search: string = ''): Observable<any> {
+    let url = `${this.apiUrl}?page=${page}`;
+    if (search) {
+      url += `&search=${search}`;
+    }
+    return this.http.get<any>(url);
   }
 
   createProduct(product: Partial<Product>): Observable<Product> {
