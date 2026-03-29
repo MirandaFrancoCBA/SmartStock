@@ -7,26 +7,36 @@ import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProductFormComponent } from '../components/product-form/product-form';
-
-
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatCardModule, MatPaginatorModule],
+  imports: [
+    CommonModule, 
+    MatTableModule, 
+    MatCardModule, 
+    MatPaginatorModule, 
+    MatIconModule, 
+    MatButtonModule, 
+    MatDialogModule
+  ],
   template: `
     <mat-card>
       <mat-card-header>
         <mat-card-title>Inventario de Productos</mat-card-title>
       </mat-card-header>
-      <div class="header-actions">
+      
+      <div class="header-actions" style="padding: 16px;">
           <button mat-raised-button color="primary" (click)="openCreateDialog()">
-           + Nuevo Producto
+            + Nuevo Producto
           </button>
       </div>
+
       <mat-card-content>
         <table mat-table [dataSource]="products()" class="mat-elevation-z8">
-          
+
           <ng-container matColumnDef="sku">
             <th mat-header-cell *matHeaderCellDef> SKU </th>
             <td mat-cell *matCellDef="let element"> {{element.sku}} </td>
@@ -47,6 +57,18 @@ import { ProductFormComponent } from '../components/product-form/product-form';
             <td mat-cell *matCellDef="let element"> {{element.stock}} </td>
           </ng-container>
 
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+            <td mat-cell *matCellDef="let element">
+               <button mat-icon-button color="accent" (click)="openEditDialog(element)">
+                  <mat-icon>edit</mat-icon>
+               </button>
+               <button mat-icon-button color="warn" (click)="deleteProduct(element.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+            </td>
+          </ng-container>
+          
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
@@ -62,14 +84,16 @@ import { ProductFormComponent } from '../components/product-form/product-form';
     table { width: 100%; margin-top: 20px; }
     mat-card { margin: 20px; }
     mat-paginator { margin-top: 10px; }
+    .header-actions { display: flex; justify-content: flex-end; }
   `]
 })
 export class ProductListComponent implements OnInit {
   private productService = inject(ProductService);
+  private dialog = inject(MatDialog);
   
   products = signal<Product[]>([]);
   totalProducts = signal(0);
-  displayedColumns: string[] = ['sku', 'name', 'price', 'stock'];
+  displayedColumns: string[] = ['sku', 'name', 'price', 'stock', 'actions'];
 
   ngOnInit() {
     this.loadPage(1);
@@ -86,21 +110,38 @@ export class ProductListComponent implements OnInit {
   }
 
   onPageChange(event: PageEvent) {
-    // Angular empieza en 0, Django en 1
     const pageIndex = event.pageIndex + 1;
     this.loadPage(pageIndex);
   }
 
-  private dialog = inject(MatDialog);
   openCreateDialog() {
     const dialogRef = this.dialog.open(ProductFormComponent, {
-      width: '400px'
+      width: '400px',
+      data: null // Modo creación
     });
   
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadPage(1);
-      }
+      if (result) this.loadPage(1);
     });
+  }
+
+  openEditDialog(product: Product) {
+    const dialogRef = this.dialog.open(ProductFormComponent, {
+      width: '400px',
+      data: product // Modo edición
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) this.loadPage(1);
+    });
+  }
+
+  deleteProduct(id: number) {
+    if (confirm('¿Estás seguro de borrar este producto?')) {
+      this.productService.deleteProduct(id).subscribe({
+        next: () => this.loadPage(1),
+        error: (err) => console.error(err)
+      });
+    }
   }
 }

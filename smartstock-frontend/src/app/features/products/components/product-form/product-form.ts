@@ -1,21 +1,26 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ProductService } from '../../../../core/services/product';
+import { Product } from '../../../../core/models/product.model';
 
 @Component({
   selector: 'app-product-form',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatDialogModule, 
-    MatFormFieldModule, MatInputModule, MatButtonModule
+    CommonModule, 
+    ReactiveFormsModule, 
+    MatDialogModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatButtonModule
   ],
   template: `
-    <h2 mat-dialog-title>Nuevo Producto</h2>
+    <h2 mat-dialog-title>{{ data ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
     <mat-dialog-content [formGroup]="productForm">
       <div class="form-container">
         <mat-form-field appearance="outline">
@@ -48,10 +53,12 @@ import { ProductService } from '../../../../core/services/product';
   `,
   styles: [`.form-container { display: flex; flex-direction: column; gap: 10px; min-width: 300px; padding-top: 10px; }`]
 })
-export class ProductFormComponent {
+export class ProductFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private productService = inject(ProductService);
   private dialogRef = inject(MatDialogRef<ProductFormComponent>);
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: Product | null) {}
 
   productForm = this.fb.group({
     sku: ['', [Validators.required]],
@@ -62,13 +69,23 @@ export class ProductFormComponent {
     supplier: [1]
   });
 
+  ngOnInit() {
+    if (this.data) {
+      this.productForm.patchValue(this.data);
+    }
+  }
+
   onSubmit() {
     if (this.productForm.valid) {
-      this.productService.createProduct(this.productForm.value as any).subscribe({
-        next: (newProd) => {
-          this.dialogRef.close(true); 
-        },
-        error: (err) => console.error('Error al crear:', err)
+      const productData = this.productForm.value;
+      
+      const obs = this.data 
+        ? this.productService.updateProduct(this.data.id!, productData as any)
+        : this.productService.createProduct(productData as any);
+
+      obs.subscribe({
+        next: () => this.dialogRef.close(true),
+        error: (err) => console.error('Error en la operación:', err)
       });
     }
   }
