@@ -14,4 +14,8 @@ export class ProductService {
   getProducts(page: number = 1): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}?page=${page}`);
   }
+
+  createProduct(product: Partial<Product>): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, product);
+  }
 }

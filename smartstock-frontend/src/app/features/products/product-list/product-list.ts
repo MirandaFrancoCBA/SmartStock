@@ -5,6 +5,10 @@ import { Product } from '../../../core/models/product.model';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ProductFormComponent } from '../components/product-form/product-form';
+
+
 
 @Component({
   selector: 'app-product-list',
@@ -15,7 +19,11 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
       <mat-card-header>
         <mat-card-title>Inventario de Productos</mat-card-title>
       </mat-card-header>
-      
+      <div class="header-actions">
+          <button mat-raised-button color="primary" (click)="openCreateDialog()">
+           + Nuevo Producto
+          </button>
+      </div>
       <mat-card-content>
         <table mat-table [dataSource]="products()" class="mat-elevation-z8">
           
@@ -81,5 +89,18 @@ export class ProductListComponent implements OnInit {
     // Angular empieza en 0, Django en 1
     const pageIndex = event.pageIndex + 1;
     this.loadPage(pageIndex);
+  }
+
+  private dialog = inject(MatDialog);
+  openCreateDialog() {
+    const dialogRef = this.dialog.open(ProductFormComponent, {
+      width: '400px'
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadPage(1);
+      }
+    });
   }
 }
