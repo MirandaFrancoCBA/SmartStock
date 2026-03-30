@@ -26,6 +26,7 @@ class Product(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(default=0)
+    min_stock = models.IntegerField(default=5)
     
     class Meta:
         ordering = ["id"]
@@ -37,4 +38,11 @@ class Product(models.Model):
 
         if self.price <= 0:
             raise ValidationError("Price must be greater than zero")
+        
+    @property
+    def is_low_stock(self):
+        return self.stock <= self.min_stock
+
+    def __str__(self):
+        return self.name
     
