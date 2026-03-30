@@ -84,6 +84,13 @@ import { MatInputModule } from '@angular/material/input';
               <button mat-icon-button color="warn" (click)="deleteProduct(element.id)">
                 <mat-icon>delete</mat-icon>
               </button>
+              <button mat-icon-button color="primary" (click)="adjustStock(element, 1)">
+                <mat-icon>add_circle_outline</mat-icon>
+              </button>
+
+              <button mat-icon-button color="warn" (click)="adjustStock(element, -1)">
+                <mat-icon>remove_circle_outline</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -184,4 +191,14 @@ export class ProductListComponent implements OnInit {
       });
     }
   }
+
+  adjustStock(product: Product, amount: number) {
+    this.productService.adjustStock(product.id!, amount).subscribe({
+      next: (res) => {
+        product.stock = res.new_stock;
+        product.is_low_stock = product.stock <= product.min_stock;
+      }
+    });
+  }
 }
+

@@ -29,4 +29,8 @@ export class ProductService {
   deleteProduct(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}${id}/`);
   }
+  adjustStock(id: number, amount: number): Observable<any> {
+    // Mandamos un POST al endpoint custom que creamos en Django (@action)
+    return this.http.post(`${this.apiUrl}${id}/adjust_stock/`, { amount });
+  }
 }

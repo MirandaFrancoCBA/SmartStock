@@ -8,6 +8,8 @@ from .serializers import (
 from .permissions import ProductPermission
 from rest_framework.permissions import AllowAny
 from rest_framework import filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -38,3 +40,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         'stock',
         'name'
     ]
+    
+    @action(detail=True, methods=['post'])
+    def adjust_stock(self, request, pk=None):
+        product = self.get_object()
+        amount = request.data.get('amount', 0)
+        product.stock += int(amount)
+        if product.stock < 0: product.stock = 0 
+        product.save()
+        return Response({'status': 'stock updated', 'new_stock': product.stock})
