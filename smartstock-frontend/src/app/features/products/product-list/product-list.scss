@@ -1,0 +1,11 @@
+::ng-deep .low-stock-row {
+    background-color: #ffebee !important; 
+  }
+  
+  .low-stock-text {
+    color: #d32f2f !important;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }

@@ -18,6 +18,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     category_name = serializers.ReadOnlyField(source="category.name")
     supplier_name = serializers.ReadOnlyField(source="supplier.name")
+    is_low_stock = serializers.ReadOnlyField()
 
     class Meta:
         model = Product

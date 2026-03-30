@@ -9,7 +9,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProductFormComponent } from '../components/product-form/product-form';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormField, MatLabel } from "@angular/material/input";
+import { MatFormField, MatLabel } from '@angular/material/input';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
@@ -27,7 +27,7 @@ import { MatInputModule } from '@angular/material/input';
     MatLabel,
     //MatFormFieldModule,
     MatInputModule,
-],
+  ],
   template: `
     <mat-card>
       <mat-card-header>
@@ -41,11 +41,11 @@ import { MatInputModule } from '@angular/material/input';
       </div>
 
       <mat-card-content>
-      <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 10px;">
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 10px;">
           <mat-label>Buscar productos (Nombre o SKU)...</mat-label>
-             <input matInput (keyup)="onSearch($event)" placeholder="Ej: Tornillo" #searchInput>
-              <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+          <input matInput (keyup)="onSearch($event)" placeholder="Ej: Tornillo" #searchInput />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
         <table mat-table [dataSource]="products()" class="mat-elevation-z8">
           <ng-container matColumnDef="sku">
             <th mat-header-cell *matHeaderCellDef>SKU</th>
@@ -64,7 +64,15 @@ import { MatInputModule } from '@angular/material/input';
 
           <ng-container matColumnDef="stock">
             <th mat-header-cell *matHeaderCellDef>Stock</th>
-            <td mat-cell *matCellDef="let element">{{ element.stock }}</td>
+            <td mat-cell *matCellDef="let element">
+              <span [class.low-stock-text]="element.is_low_stock">
+                {{ element.stock }}
+
+                @if (element.is_low_stock) {
+                  <mat-icon style="font-size: 16px; vertical-align: middle;"> warning </mat-icon>
+                }
+              </span>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
@@ -80,7 +88,12 @@ import { MatInputModule } from '@angular/material/input';
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            [style.background-color]="row.is_low_stock ? '#ffebee' : null"
+            [style.color]="row.is_low_stock ? '#d32f2f' : null"
+          ></tr>
         </table>
 
         <mat-paginator [length]="totalProducts()" [pageSize]="10" (page)="onPageChange($event)">
@@ -126,7 +139,7 @@ export class ProductListComponent implements OnInit {
         this.products.set(response.results);
         this.totalProducts.set(response.count);
       },
-      error: (err) => console.error('Error al buscar:', err)
+      error: (err) => console.error('Error al buscar:', err),
     });
   }
 
