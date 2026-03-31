@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../../core/services/product';
 import { Product } from '../../../core/models/product.model';
@@ -46,6 +46,34 @@ import { MatInputModule } from '@angular/material/input';
           <input matInput (keyup)="onSearch($event)" placeholder="Ej: Tornillo" #searchInput />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
+
+        <div class="dashboard-widgets" style="display: flex; gap: 20px; margin-bottom: 20px;">
+          <mat-card style="flex: 1; background-color: #e3f2fd;">
+            <mat-card-content>
+              <div style="font-size: 0.8rem; color: #1976d2;">STOCK TOTAL</div>
+              <div style="font-size: 1.5rem; font-weight: bold;">{{ totalStockItems() }} un.</div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card style="flex: 1; background-color: #f1f8e9;">
+            <mat-card-content>
+              <div style="font-size: 0.8rem; color: #388e3c;">VALOR INVENTARIO</div>
+              <div style="font-size: 1.5rem; font-weight: bold;">
+                {{ totalInventoryValue() | currency }}
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card style="flex: 1; background-color: #fff3e0;">
+            <mat-card-content>
+              <div style="font-size: 0.8rem; color: #f57c00;">ALERTAS ACTIVAS</div>
+              <div style="font-size: 1.5rem; font-weight: bold; color: #d32f2f;">
+                {{ activeAlerts() }}
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
         <table mat-table [dataSource]="products()" class="mat-elevation-z8">
           <ng-container matColumnDef="sku">
             <th mat-header-cell *matHeaderCellDef>SKU</th>
@@ -197,8 +225,15 @@ export class ProductListComponent implements OnInit {
       next: (res) => {
         product.stock = res.new_stock;
         product.is_low_stock = product.stock <= product.min_stock;
-      }
+      },
     });
   }
-}
 
+  totalStockItems = computed(() => this.products().reduce((acc, p) => acc + p.stock, 0));
+
+  totalInventoryValue = computed(() =>
+    this.products().reduce((acc, p) => acc + p.price * p.stock, 0),
+  );
+
+  activeAlerts = computed(() => this.products().filter((p) => p.is_low_stock).length);
+}
