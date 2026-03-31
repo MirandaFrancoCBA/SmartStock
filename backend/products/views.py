@@ -48,4 +48,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         product.stock += int(amount)
         if product.stock < 0: product.stock = 0 
         product.save()
+        
+        StockMovement.objects.create(
+            product=product,
+            user=request.user,
+            quantity=abs(amount),
+            movement_type='IN' if amount > 0 else 'OUT',
+            notes="Ajuste rápido desde tabla"
+        )
         return Response({'status': 'stock updated', 'new_stock': product.stock})

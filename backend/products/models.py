@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-
+from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -45,4 +45,20 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
+class StockMovement(models.Model):
+    TYPES = (
+        ('IN', 'Entrada'),
+        ('OUT', 'Salida'),
+    )
+
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='movements')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    quantity = models.IntegerField()
+    movement_type = models.CharField(max_length=3, choices=TYPES)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.movement_type} - {self.product.name} ({self.quantity})"
