@@ -3,7 +3,7 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 
-from products.views import CategoryViewSet, SupplierViewSet, ProductViewSet
+from products.views import CategoryViewSet, SupplierViewSet, ProductViewSet, StockMovementViewSet
 from inventory.views import InventoryMovementViewSet
 from drf_spectacular.views import ( # type: ignore
     SpectacularAPIView,
@@ -26,7 +26,8 @@ router = DefaultRouter()
 router.register(r'categories', CategoryViewSet)
 router.register(r'suppliers', SupplierViewSet)
 router.register(r'products', ProductViewSet)
-router.register(r'movements', InventoryMovementViewSet)
+router.register(r'inventory-movements', InventoryMovementViewSet)
+router.register(r'stock-history', StockMovementViewSet)
 
 urlpatterns = [
 

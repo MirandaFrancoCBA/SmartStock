@@ -4,6 +4,7 @@ import { LayoutComponent } from './core/components/layout/layout';
 import { ProductListComponent } from './features/products/product-list/product-list';
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { authGuard } from './core/guards/auth-guard';
+import { StockHistoryComponent } from './features/products/stock-history/stock-history';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -14,6 +15,7 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'products', component: ProductListComponent }, 
+      { path: 'history', component: StockHistoryComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

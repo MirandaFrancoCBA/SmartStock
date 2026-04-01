@@ -8,8 +8,9 @@ import { Product } from '../models/product.model';
 })
 export class ProductService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api/products/';
-
+  private baseUrl = 'http://localhost:8000/api/';
+  private apiUrl = `${this.baseUrl}products/`;
+  
   getProducts(page: number = 1, search: string = ''): Observable<any> {
     let url = `${this.apiUrl}?page=${page}`;
     if (search) {
@@ -30,7 +31,10 @@ export class ProductService {
     return this.http.delete(`${this.apiUrl}${id}/`);
   }
   adjustStock(id: number, amount: number): Observable<any> {
-    // Mandamos un POST al endpoint custom que creamos en Django (@action)
     return this.http.post(`${this.apiUrl}${id}/adjust_stock/`, { amount });
+  }
+
+  getMovements(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}stock-history/`); 
   }
 }

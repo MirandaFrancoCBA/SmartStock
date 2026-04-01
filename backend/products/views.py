@@ -1,9 +1,10 @@
 from rest_framework import viewsets
-from .models import Category, Supplier, Product
+from .models import Category, Supplier, Product, StockMovement
 from .serializers import (
     CategorySerializer,
     SupplierSerializer,
-    ProductSerializer
+    ProductSerializer,
+    StockMovementSerializer
 )
 from .permissions import ProductPermission
 from rest_framework.permissions import AllowAny
@@ -20,6 +21,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
+    
+class StockMovementViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = StockMovement.objects.all().order_by('-created_at')
+    serializer_class = StockMovementSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
