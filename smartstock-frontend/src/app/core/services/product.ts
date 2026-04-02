@@ -11,11 +11,17 @@ export class ProductService {
   private baseUrl = 'http://localhost:8000/api/';
   private apiUrl = `${this.baseUrl}products/`;
   
-  getProducts(page: number = 1, search: string = ''): Observable<any> {
+  getProducts(page: number = 1, search: string = '', lowStock: boolean = false): Observable<any> {
     let url = `${this.apiUrl}?page=${page}`;
+    
     if (search) {
       url += `&search=${search}`;
     }
+    
+    if (lowStock) {
+      url += `&low_stock=true`;
+    }
+    
     return this.http.get<any>(url);
   }
 

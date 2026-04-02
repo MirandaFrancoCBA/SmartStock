@@ -65,11 +65,25 @@ import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
             </mat-card-content>
           </mat-card>
 
-          <mat-card style="flex: 1; background-color: #fff3e0;">
+          <mat-card
+            (click)="toggleLowStockFilter()"
+            [style.background-color]="onlyLowStock() ? '#ffcdd2' : '#fff3e0'"
+            style="flex: 1; cursor: pointer; transition: 0.3s; border: 1px solid transparent;"
+            [style.border-color]="onlyLowStock() ? '#d32f2f' : 'transparent'"
+          >
             <mat-card-content>
-              <div style="font-size: 0.8rem; color: #f57c00;">ALERTAS ACTIVAS</div>
-              <div style="font-size: 1.5rem; font-weight: bold; color: #d32f2f;">
-                {{ activeAlerts() }}
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 0.8rem; color: #f57c00; font-weight: bold;">
+                    {{ onlyLowStock() ? 'VIENDO SOLO ALERTAS' : 'ALERTAS ACTIVAS' }}
+                  </div>
+                  <div style="font-size: 1.5rem; font-weight: bold; color: #d32f2f;">
+                    {{ activeAlerts() }}
+                  </div>
+                </div>
+                <mat-icon [color]="onlyLowStock() ? 'warn' : ''">
+                  {{ onlyLowStock() ? 'filter_alt' : 'notifications_active' }}
+                </mat-icon>
               </div>
             </mat-card-content>
           </mat-card>
@@ -165,19 +179,24 @@ export class ProductListComponent implements OnInit {
   products = signal<Product[]>([]);
   totalProducts = signal(0);
   displayedColumns: string[] = ['sku', 'name', 'price', 'stock', 'actions'];
+  onlyLowStock = signal(false);
 
   ngOnInit() {
     this.loadPage(1);
   }
 
   loadPage(page: number) {
-    this.productService.getProducts(page, this.currentSearch()).subscribe({
+    this.productService.getProducts(page, this.currentSearch(), this.onlyLowStock()).subscribe({
       next: (response: any) => {
         this.products.set(response.results);
         this.totalProducts.set(response.count);
       },
-      error: (err) => console.error('Error al buscar:', err),
     });
+  }
+
+  toggleLowStockFilter() {
+    this.onlyLowStock.update((val) => !val);
+    this.loadPage(1);
   }
 
   onSearch(event: Event) {

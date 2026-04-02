@@ -46,6 +46,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         'name'
     ]
     
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        low_stock = self.request.query_params.get('low_stock')
+        
+        if low_stock == 'true':
+            queryset = queryset.filter(stock__lte=F('min_stock'))
+            
+        return queryset.order_by('name')
+    
     def perform_update(self, serializer):
         instance = self.get_object()
         old_stock = instance.stock
