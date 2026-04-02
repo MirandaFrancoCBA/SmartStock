@@ -30,8 +30,9 @@ export class ProductService {
   deleteProduct(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}${id}/`);
   }
-  adjustStock(id: number, amount: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}${id}/adjust_stock/`, { amount });
+  
+  adjustStock(id: number, amount: number, notes: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}${id}/adjust_stock/`, { amount, notes });
   }
 
   getMovements(): Observable<any[]> {

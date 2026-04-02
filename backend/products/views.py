@@ -46,10 +46,29 @@ class ProductViewSet(viewsets.ModelViewSet):
         'name'
     ]
     
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        old_stock = instance.stock
+        
+        product = serializer.save()
+        new_stock = product.stock
+
+        if old_stock != new_stock:
+            diff = new_stock - old_stock
+            StockMovement.objects.create(
+                product=product,
+                user=self.request.user,
+                quantity=abs(diff),
+                movement_type='IN' if diff > 0 else 'OUT',
+                notes="Cambio manual en edición de producto"
+            )
+    
     @action(detail=True, methods=['post'])
     def adjust_stock(self, request, pk=None):
         product = self.get_object()
         amount = request.data.get('amount', 0)
+        notes = request.data.get('notes', 'Ajuste manual')
+        
         product.stock += int(amount)
         if product.stock < 0: product.stock = 0 
         product.save()
@@ -59,6 +78,6 @@ class ProductViewSet(viewsets.ModelViewSet):
             user=request.user,
             quantity=abs(amount),
             movement_type='IN' if amount > 0 else 'OUT',
-            notes="Ajuste rápido desde tabla"
+            notes=notes
         )
         return Response({'status': 'stock updated', 'new_stock': product.stock})

@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/input';
 import { MatInputModule } from '@angular/material/input';
+import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
 
 @Component({
   selector: 'app-product-list',
@@ -112,12 +113,13 @@ import { MatInputModule } from '@angular/material/input';
               <button mat-icon-button color="warn" (click)="deleteProduct(element.id)">
                 <mat-icon>delete</mat-icon>
               </button>
-              <button mat-icon-button color="primary" (click)="adjustStock(element, 1)">
-                <mat-icon>add_circle_outline</mat-icon>
-              </button>
-
-              <button mat-icon-button color="warn" (click)="adjustStock(element, -1)">
-                <mat-icon>remove_circle_outline</mat-icon>
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openAdjustStockDialog(element)"
+                title="Ajustar Stock"
+              >
+                <mat-icon>settings_suggest</mat-icon>
               </button>
             </td>
           </ng-container>
@@ -192,7 +194,7 @@ export class ProductListComponent implements OnInit {
   openCreateDialog() {
     const dialogRef = this.dialog.open(ProductFormComponent, {
       width: '400px',
-      data: null, // Modo creación
+      data: null,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -203,7 +205,7 @@ export class ProductListComponent implements OnInit {
   openEditDialog(product: Product) {
     const dialogRef = this.dialog.open(ProductFormComponent, {
       width: '400px',
-      data: product, // Modo edición
+      data: product,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -220,12 +222,29 @@ export class ProductListComponent implements OnInit {
     }
   }
 
-  adjustStock(product: Product, amount: number) {
-    this.productService.adjustStock(product.id!, amount).subscribe({
+  adjustStock(product: Product, amount: number, notes: string) {
+    this.productService.adjustStock(product.id!, amount, notes).subscribe({
       next: (res) => {
         product.stock = res.new_stock;
         product.is_low_stock = product.stock <= product.min_stock;
       },
+    });
+  }
+
+  openAdjustStockDialog(product: Product) {
+    const dialogRef = this.dialog.open(StockAdjustComponent, {
+      width: '350px',
+      data: product,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.productService.adjustStock(product.id!, result.amount, result.notes).subscribe({
+          next: (res) => {
+            this.loadPage(1);
+          },
+        });
+      }
     });
   }
 
