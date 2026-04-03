@@ -44,4 +44,8 @@ export class ProductService {
   getMovements(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}stock-history/`); 
   }
+
+  getStats(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}stock-history/stats/`); 
+  }
 }
