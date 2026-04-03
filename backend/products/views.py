@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from django.db.models import Sum, F, Count
-from backend.inventory import models
+from inventory import models as inventory_models
 from .models import Category, Supplier, Product, StockMovement
 from .serializers import (
     CategorySerializer,
@@ -9,6 +9,7 @@ from .serializers import (
     StockMovementSerializer
 )
 from .permissions import ProductPermission
+from django.db import models as django_models
 from rest_framework.permissions import AllowAny
 from rest_framework import filters
 from rest_framework.decorators import action
@@ -96,7 +97,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         inventory_value = Product.objects.aggregate(
-            total=Sum(F('price') * F('stock'), output_field=models.FloatField())
+            total=Sum(F('price') * F('stock'), output_field=django_models.FloatField())
         )['total'] or 0
 
         total_stock = Product.objects.aggregate(total=Sum('stock'))['total'] or 0

@@ -52,7 +52,7 @@ import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
           <mat-card style="flex: 1; background-color: #e3f2fd;">
             <mat-card-content>
               <div style="font-size: 0.8rem; color: #1976d2;">STOCK TOTAL</div>
-              <div style="font-size: 1.5rem; font-weight: bold;">{{ totalStockItems() }} un.</div>
+              <div style="font-size: 1.5rem; font-weight: bold;">{{ globalStats().total_stock }} un.</div>
             </mat-card-content>
           </mat-card>
 
@@ -60,7 +60,7 @@ import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
             <mat-card-content>
               <div style="font-size: 0.8rem; color: #388e3c;">VALOR INVENTARIO</div>
               <div style="font-size: 1.5rem; font-weight: bold;">
-                {{ totalInventoryValue() | currency }}
+              {{ globalStats().inventory_value | currency }}
               </div>
             </mat-card-content>
           </mat-card>
@@ -78,7 +78,7 @@ import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
                     {{ onlyLowStock() ? 'VIENDO SOLO ALERTAS' : 'ALERTAS ACTIVAS' }}
                   </div>
                   <div style="font-size: 1.5rem; font-weight: bold; color: #d32f2f;">
-                    {{ activeAlerts() }}
+                  {{ globalStats().active_alerts }}
                   </div>
                 </div>
                 <mat-icon [color]="onlyLowStock() ? 'warn' : ''">
@@ -180,9 +180,15 @@ export class ProductListComponent implements OnInit {
   totalProducts = signal(0);
   displayedColumns: string[] = ['sku', 'name', 'price', 'stock', 'actions'];
   onlyLowStock = signal(false);
+  globalStats = signal({
+    inventory_value: 0,
+    total_stock: 0,
+    active_alerts: 0
+  });
 
   ngOnInit() {
     this.loadPage(1);
+    this.loadStats();
   }
 
   loadPage(page: number) {
@@ -191,6 +197,13 @@ export class ProductListComponent implements OnInit {
         this.products.set(response.results);
         this.totalProducts.set(response.count);
       },
+    });
+  }
+
+  loadStats() {
+    this.productService.getStats().subscribe({
+      next: (data) => this.globalStats.set(data),
+      error: (err) => console.error('Error al cargar stats globales', err)
     });
   }
 
@@ -246,6 +259,7 @@ export class ProductListComponent implements OnInit {
       next: (res) => {
         product.stock = res.new_stock;
         product.is_low_stock = product.stock <= product.min_stock;
+        this.loadStats();
       },
     });
   }

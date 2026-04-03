@@ -46,6 +46,6 @@ export class ProductService {
   }
 
   getStats(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}stock-history/stats/`); 
+    return this.http.get<any>(`${this.baseUrl}products/stats/`); 
   }
 }
