@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from django.db.models import Sum, F, Count
+from backend.inventory import models
 from .models import Category, Supplier, Product, StockMovement
 from .serializers import (
     CategorySerializer,
@@ -90,3 +92,19 @@ class ProductViewSet(viewsets.ModelViewSet):
             notes=notes
         )
         return Response({'status': 'stock updated', 'new_stock': product.stock})
+    
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        inventory_value = Product.objects.aggregate(
+            total=Sum(F('price') * F('stock'), output_field=models.FloatField())
+        )['total'] or 0
+
+        total_stock = Product.objects.aggregate(total=Sum('stock'))['total'] or 0
+
+        active_alerts = Product.objects.filter(stock__lte=F('min_stock')).count()
+
+        return Response({
+            'inventory_value': inventory_value,
+            'total_stock': total_stock,
+            'active_alerts': active_alerts
+        })
