@@ -3,6 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { EMPTY, Observable, expand, map, reduce } from 'rxjs';
 import { Product } from '../models/product.model';
 import { Category, Supplier } from '../models/catalog.model';
+import {
+  CreateInventoryMovement,
+  InventoryMovement,
+} from '../models/inventory-movement.model';
 import { environment } from '../../../environments/environment';
 
 interface PaginatedResponse<T> {
@@ -51,13 +55,13 @@ export class ProductService {
   deleteProduct(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}${id}/`);
   }
-  
-  adjustStock(id: number, amount: number, notes: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}${id}/adjust_stock/`, { amount, notes });
+
+  createInventoryMovement(movement: CreateInventoryMovement): Observable<InventoryMovement> {
+    return this.http.post<InventoryMovement>(`${this.baseUrl}inventory-movements/`, movement);
   }
 
-  getMovements(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}stock-history/`); 
+  getMovements(): Observable<InventoryMovement[]> {
+    return this.getAllPages<InventoryMovement>(`${this.baseUrl}inventory-movements/`);
   }
 
   getStats(): Observable<any> {
