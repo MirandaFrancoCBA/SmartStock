@@ -8,6 +8,7 @@ import {
   finalize,
   map,
   shareReplay,
+  switchMap,
   tap,
   throwError,
 } from 'rxjs';
@@ -32,8 +33,19 @@ export class AuthService {
         localStorage.setItem('token', res.access);
         localStorage.setItem('refresh', res.refresh);
         this.isAuthenticated.set(true);
-      })
+      }),
+      switchMap((tokens) => this.loadCurrentUser().pipe(map(() => tokens)))
     );
+  }
+
+  loadCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${environment.apiUrl}/me/`).pipe(
+      tap((user) => this.currentUser.set(user))
+    );
+  }
+
+  hasRole(...roles: string[]): boolean {
+    return this.currentUser()?.groups.some((group) => roles.includes(group)) ?? false;
   }
 
   getAccessToken(): string | null {
