@@ -4,6 +4,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { ProductService } from '../../../core/services/product';
+import { InventoryMovement } from '../../../core/models/inventory-movement.model';
 
 @Component({
   selector: 'app-stock-history',
@@ -15,7 +16,8 @@ import { ProductService } from '../../../core/services/product';
 export class StockHistoryComponent implements OnInit {
   private productService = inject(ProductService);
   
-  movements = signal<any[]>([]);
+  movements = signal<InventoryMovement[]>([]);
+  errorMessage = signal<string | null>(null);
   displayedColumns: string[] = ['fecha', 'producto', 'usuario', 'tipo', 'cantidad', 'notas'];
 
   ngOnInit() {
@@ -23,14 +25,12 @@ export class StockHistoryComponent implements OnInit {
   }
 
   loadMovements() {
+    this.errorMessage.set(null);
     this.productService.getMovements().subscribe({
-      next: (data: any) => {
-        const results = Array.isArray(data) ? data : data.results;
-        this.movements.set(results || []);
-      },
-      error: (err) => {
-        console.error('Error al cargar historial:', err);
-        this.movements.set([]); 
+      next: (movements) => this.movements.set(movements),
+      error: () => {
+        this.errorMessage.set('No se pudo cargar el historial de inventario.');
+        this.movements.set([]);
       }
     });
   }
