@@ -14,6 +14,16 @@ interface PaginatedResponse<T> {
   next: string | null;
 }
 
+export interface InventoryValueReport {
+  total_inventory_value: number | null;
+}
+
+export interface StockReportItem {
+  id: number;
+  name: string;
+  stock: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -62,6 +72,24 @@ export class ProductService {
 
   getMovements(): Observable<InventoryMovement[]> {
     return this.getAllPages<InventoryMovement>(`${this.baseUrl}inventory-movements/`);
+  }
+
+  getRecentMovements(limit: number = 5): Observable<InventoryMovement[]> {
+    return this.http
+      .get<PaginatedResponse<InventoryMovement>>(`${this.baseUrl}inventory-movements/`)
+      .pipe(map((response) => response.results.slice(0, limit)));
+  }
+
+  getInventoryValueReport(): Observable<InventoryValueReport> {
+    return this.http.get<InventoryValueReport>(`${this.baseUrl}reports/inventory-value/`);
+  }
+
+  getLowStockReport(): Observable<StockReportItem[]> {
+    return this.http.get<StockReportItem[]>(`${this.baseUrl}reports/low-stock/`);
+  }
+
+  getTopProductsReport(): Observable<StockReportItem[]> {
+    return this.http.get<StockReportItem[]>(`${this.baseUrl}reports/top-products/`);
   }
 
   getStats(): Observable<any> {
