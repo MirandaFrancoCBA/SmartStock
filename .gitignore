@@ -1,19 +1,32 @@
 # Python
 venv/
+.venv/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
 
 # Django
 db.sqlite3
 media/
+*.log
 
 # Environment
 .env
+.env.*
+!.env.example
 
-# Node
+# Node / Angular
 node_modules/
+dist/
+.angular/
+
+# IDE / Editor
+.vscode/
+.idea/
 
 # OS
 .DS_Store
