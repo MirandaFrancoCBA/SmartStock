@@ -1,8 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, expand, map, reduce } from 'rxjs';
 import { Product } from '../models/product.model';
+import { Category, Supplier } from '../models/catalog.model';
 import { environment } from '../../../environments/environment';
+
+interface PaginatedResponse<T> {
+  results: T[];
+  next: string | null;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +30,14 @@ export class ProductService {
     }
     
     return this.http.get<any>(url);
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.getAllPages<Category>(`${this.baseUrl}categories/`);
+  }
+
+  getSuppliers(): Observable<Supplier[]> {
+    return this.getAllPages<Supplier>(`${this.baseUrl}suppliers/`);
   }
 
   createProduct(product: Partial<Product>): Observable<Product> {
@@ -48,5 +62,15 @@ export class ProductService {
 
   getStats(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}products/stats/`); 
+  }
+
+  private getAllPages<T>(url: string): Observable<T[]> {
+    return this.http.get<PaginatedResponse<T>>(url).pipe(
+      expand((response) =>
+        response.next ? this.http.get<PaginatedResponse<T>>(response.next) : EMPTY
+      ),
+      map((response) => response.results),
+      reduce((items, page) => [...items, ...page], [] as T[])
+    );
   }
 }
