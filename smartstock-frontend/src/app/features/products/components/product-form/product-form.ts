@@ -61,8 +61,11 @@ import { Category, Supplier } from '../../../../core/models/catalog.model';
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Stock Inicial</mat-label>
-          <input matInput type="number" formControlName="stock" />
+          <mat-label>{{ data ? 'Stock actual' : 'Stock inicial' }}</mat-label>
+          <input matInput type="number" formControlName="stock" [readonly]="!!data" />
+          @if (data) {
+            <mat-hint>Usá “Registrar movimiento” para modificar el stock.</mat-hint>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
