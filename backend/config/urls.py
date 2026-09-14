@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 
 from products.views import CategoryViewSet, SupplierViewSet, ProductViewSet, StockMovementViewSet
 from inventory.views import InventoryMovementViewSet
+from config.views import current_user
 from drf_spectacular.views import ( # type: ignore
     SpectacularAPIView,
     SpectacularSwaggerView,
@@ -35,6 +36,8 @@ urlpatterns = [
 
     path('api/', include(router.urls)),
 
+    path('api/me/', current_user, name='current-user'),
+
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
 
     path(
@@ -51,9 +54,7 @@ urlpatterns = [
     
     path("api/reports/inventory-value/", inventory_value_report),
     
-    
     path("api/reports/low-stock/", low_stock_report),
-    
     
     path("api/reports/top-products/", top_products_report),
     
