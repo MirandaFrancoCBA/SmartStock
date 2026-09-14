@@ -19,7 +19,7 @@ from services.inventory_service import (
 
 class InventoryMovementViewSet(viewsets.ModelViewSet):
 
-    queryset = InventoryMovement.objects.all()
+    queryset = InventoryMovement.objects.all().order_by("-created_at", "-id")
     serializer_class = InventoryMovementSerializer
     permission_classes = [InventoryPermission]
 
