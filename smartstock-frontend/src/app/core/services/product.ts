@@ -2,20 +2,21 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8000/api/';
+  private baseUrl = `${environment.apiUrl}/`;
   private apiUrl = `${this.baseUrl}products/`;
   
   getProducts(page: number = 1, search: string = '', lowStock: boolean = false): Observable<any> {
     let url = `${this.apiUrl}?page=${page}`;
     
     if (search) {
-      url += `&search=${search}`;
+      url += `&search=${encodeURIComponent(search)}`;
     }
     
     if (lowStock) {
