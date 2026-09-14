@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -25,9 +26,10 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class LayoutComponent {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   logout() {
-    localStorage.removeItem('token'); 
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
