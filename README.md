@@ -1,294 +1,187 @@
 # SmartStock – Inventory Management System
 
-SmartStock is a backend-driven inventory management system designed to manage products, suppliers, and inventory movements efficiently.
+SmartStock is a full-stack inventory management project built to model real business workflows around products, suppliers, stock movements, access control and inventory analytics.
 
-This project was built as a **professional backend portfolio project** to demonstrate modern API architecture using **Django and Django REST Framework**.
+The backend uses **Django + Django REST Framework**, runs on **PostgreSQL 16**, and is containerized with **Docker / Docker Compose**. The repository also includes an **Angular** frontend that consumes the REST API.
 
-The system implements clean modular architecture, role-based access control, and analytical reporting endpoints commonly found in real-world inventory systems.
+## Current status
 
----
+SmartStock is approaching its first portfolio-ready release (`v1.0`). The backend, PostgreSQL integration, Docker environment, JWT authentication, role-based access control, inventory operations, analytics endpoints, OpenAPI documentation, automated tests and CI are implemented. The Angular frontend is still being completed, followed by production configuration, deployment and final portfolio presentation.
 
-# Overview
+## Tech stack
 
-SmartStock enables businesses to manage inventory operations through a structured backend service providing:
+### Backend
+- Python
+- Django 6
+- Django REST Framework
+- django-filter
+- SimpleJWT
+- drf-spectacular / OpenAPI
+- pytest / pytest-django / pytest-cov
 
-* Product catalog management
-* Supplier relationships
-* Inventory movement tracking
-* Automated stock updates
-* Inventory analytics
-* Secure REST API for frontend integration
+### Database
+- PostgreSQL 16
 
-The backend follows **modular domain architecture**, separating product management, inventory logic, and service layers.
+### Frontend
+- Angular
+- TypeScript
+- Angular Material
 
----
+### DevOps
+- Docker
+- Docker Compose
+- GitHub Actions
+- Environment-based configuration
 
-# Tech Stack
+## Core features
 
-## Backend
+### Product management
+- Product CRUD
+- SKU tracking
+- Categories and suppliers
+- Price and stock management
+- Filtering, searching, ordering and pagination
 
-* Python
-* Django
-* Django REST Framework
-* django-filter
-* drf-spectacular (OpenAPI documentation)
-* SimpleJWT (authentication)
+### Inventory management
+- IN / OUT stock movements
+- Movement history with deterministic pagination
+- User attribution
+- Automatic stock updates
+- Validation for non-positive quantities and insufficient stock
 
-## Database
+### Authentication and authorization
+- JWT authentication
+- Protected API endpoints
+- Role-based access control using Django Groups
+- Custom DRF permissions
 
-* SQLite (development)
-* PostgreSQL (planned for production)
+Current roles:
+- **Admin** – full system access
+- **Staff** – inventory operations
+- **Viewer** – read-only access
 
-## Frontend (planned)
+### Analytics
 
-* Angular
-* TypeScript
-* Chart.js
-
-## DevOps (planned)
-
-* Docker
-* Railway / Render deployment
-
----
-
-# Core Features
-
-## Product Management
-
-* Create, update and manage products
-* SKU tracking
-* Category assignment
-* Supplier relationships
-* Price and stock tracking
-
----
-
-## Inventory Movements
-
-* Register **IN** and **OUT** stock movements
-* Automatic stock updates
-* Movement history tracking
-* User attribution for each movement
-
----
-
-## Automated Stock Updates
-
-Stock is automatically updated using **Django Signals** when inventory movements occur.
-
-Example:
-
-```
-IN movement  → increases stock
-OUT movement → decreases stock
+```text
+/api/reports/inventory-value/
+/api/reports/low-stock/
+/api/reports/top-products/
 ```
 
----
+### Product API capabilities
 
-# REST API
-
-The backend exposes a fully documented REST API.
-
-Example endpoints:
-
-```
-/api/products/
-/api/movements/
-/api/categories/
-/api/suppliers/
-```
-
----
-
-# API Features
-
-### Filtering
-
-```
+```text
 /api/products/?category=1
-```
-
-### Searching
-
-```
 /api/products/?search=maceta
-```
-
-### Ordering
-
-```
 /api/products/?ordering=price
 /api/products/?ordering=-price
-```
-
-### Pagination
-
-```
 /api/products/?page=2
 ```
 
----
+### API documentation
 
-# Security
-
-The API implements modern security practices:
-
-### JWT Authentication
-
-Secure authentication using JSON Web Tokens.
-
-```
-POST /api/token/
-```
-
-### Role-Based Access Control
-
-Three user roles are implemented using Django Groups:
-
-* **Admin** – full system access
-* **Staff** – inventory operations
-* **Viewer** – read-only access
-
-Permissions are enforced at the API layer using **custom DRF permission classes**.
-
----
-
-# Inventory Analytics API
-
-The system includes reporting endpoints for business insights.
-
-```
-/api/reports/inventory-value
-/api/reports/low-stock
-/api/reports/top-products
-```
-
-These endpoints perform database-level aggregations to provide analytics on stock levels and inventory value.
-
----
-
-# API Documentation
-
-Interactive documentation is generated automatically using **OpenAPI**.
-
-Swagger UI:
-
-```
+```text
 /api/docs/
-```
-
-ReDoc:
-
-```
 /api/redoc/
 ```
 
-These tools allow developers to explore and test API endpoints directly from the browser.
+## Architecture
 
----
-
-# Project Architecture
-
-```
-backend/
-│
-├── config/            # Django project configuration
-│
-├── products/          # Product domain logic
-│   ├── models.py
-│   ├── serializers.py
-│   ├── views.py
-│   ├── permissions.py
-│
-├── inventory/         # Inventory management
-│   ├── models.py
-│   ├── serializers.py
-│   ├── views.py
-│   ├── views_reports.py
-│   ├── permissions.py
-│
-├── services/          # Business logic layer
-│
-├── manage.py
-└── db.sqlite3
+```text
+SmartStock/
+├── backend/
+│   ├── config/              # Django project configuration
+│   ├── products/            # Product, category and supplier domain
+│   ├── inventory/           # Movements, permissions and reports
+│   ├── services/            # Business/service layer
+│   ├── conftest.py          # Shared pytest fixtures
+│   └── manage.py
+├── smartstock-frontend/     # Angular frontend
+├── .github/workflows/       # CI
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
 ```
 
----
+## Run locally with Docker
 
-# Installation
+### 1. Clone the repository
 
-Clone repository:
-
-```
-git clone https://github.com/YOUR_USERNAME/smartstock.git
-```
-
-Navigate to the backend:
-
-```
-cd smartstock/backend
+```bash
+git clone https://github.com/MirandaFrancoCBA/SmartStock.git
+cd SmartStock
 ```
 
-Create virtual environment:
+### 2. Configure environment variables
 
-```
-python -m venv venv
-```
+Copy `.env.example` to `.env` and replace development placeholders as needed.
 
-Activate environment:
+```text
+DJANGO_SECRET_KEY=replace-with-a-long-random-secret
+DJANGO_DEBUG=True
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,backend
+DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:4200,http://127.0.0.1:4200
+DJANGO_CORS_ALLOW_CREDENTIALS=True
 
-Windows:
-
-```
-venv\Scripts\activate
-```
-
-Install dependencies:
-
-```
-pip install -r requirements.txt
+POSTGRES_DB=smartstock
+POSTGRES_USER=smartstock_user
+POSTGRES_PASSWORD=change-me
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
 ```
 
-Run migrations:
+Do not commit the real `.env` file or production secrets.
 
-```
-python manage.py migrate
-```
+### 3. Start the stack
 
-Create admin user:
-
-```
-python manage.py createsuperuser
+```bash
+docker compose up -d --build
 ```
 
-Run development server:
+The backend is exposed on port `8000` by the current Docker Compose configuration.
 
+### 4. Apply migrations
+
+```bash
+docker compose exec backend python manage.py migrate
 ```
-python manage.py runserver
+
+### 5. Create an admin user
+
+```bash
+docker compose exec backend python manage.py createsuperuser
 ```
 
----
+## Tests and CI
 
-# Future Improvements
+Run the backend suite inside the container:
 
-* Advanced reporting and analytics
-* Angular dashboard frontend
-* Docker containerization
-* PostgreSQL production database
-* Background jobs for reporting
-* Real-time stock updates using WebSockets
+```bash
+docker compose exec backend pytest
+```
 
----
+Current verified baseline on `main`:
+- **19 tests passed**
+- **79% total coverage**
+- CI executes pytest against **PostgreSQL 16** on relevant pull requests and pushes to `main`
+- Critical flows covered include authentication, product protection, inventory IN/OUT, stock validation, RBAC and analytics reports
 
-# Author
+## v1.0 roadmap
 
-**Franco Rodrigo Miranda**
+The release is intentionally scoped to finishing and hardening the existing product rather than adding unrelated features.
 
-Software Development Student – Argentina
+1. Stabilize configuration, repository hygiene and documentation
+2. Complete the essential Angular flows
+3. Consolidate backend tests and CI
+4. Prepare production configuration and deployment
+5. Publish the final demo and portfolio documentation
 
-LinkedIn
-https://www.linkedin.com/in/franco-rodrigo-miranda-993710248
+Features such as WebSockets, background jobs or additional infrastructure are considered post-`v1.0` unless they become necessary for a core workflow.
 
-GitHub
-https://github.com/MirandaFrancoCBA
+## Author
+
+**Franco Rodrigo Miranda**  
+Software Development Student / Backend Developer – Argentina
+
+- LinkedIn: https://www.linkedin.com/in/franco-rodrigo-miranda-993710248
+- GitHub: https://github.com/MirandaFrancoCBA
