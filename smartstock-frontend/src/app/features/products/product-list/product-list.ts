@@ -26,7 +26,6 @@ import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
     MatDialogModule,
     MatFormField,
     MatLabel,
-    //MatFormFieldModule,
     MatInputModule,
   ],
   template: `
@@ -42,6 +41,10 @@ import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
       </div>
 
       <mat-card-content>
+        @if (operationError()) {
+          <p class="operation-error">{{ operationError() }}</p>
+        }
+
         <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 10px;">
           <mat-label>Buscar productos (Nombre o SKU)...</mat-label>
           <input matInput (keyup)="onSearch($event)" placeholder="Ej: Tornillo" #searchInput />
@@ -131,9 +134,9 @@ import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
                 mat-icon-button
                 color="primary"
                 (click)="openAdjustStockDialog(element)"
-                title="Ajustar Stock"
+                title="Registrar movimiento"
               >
-                <mat-icon>settings_suggest</mat-icon>
+                <mat-icon>swap_vert</mat-icon>
               </button>
             </td>
           </ng-container>
@@ -168,6 +171,10 @@ import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
         display: flex;
         justify-content: flex-end;
       }
+      .operation-error {
+        color: #b3261e;
+        margin: 0 0 16px;
+      }
     `,
   ],
 })
@@ -180,6 +187,7 @@ export class ProductListComponent implements OnInit {
   totalProducts = signal(0);
   displayedColumns: string[] = ['sku', 'name', 'price', 'stock', 'actions'];
   onlyLowStock = signal(false);
+  operationError = signal<string | null>(null);
   globalStats = signal({
     inventory_value: 0,
     total_stock: 0,
@@ -248,20 +256,14 @@ export class ProductListComponent implements OnInit {
   deleteProduct(id: number) {
     if (confirm('¿Estás seguro de borrar este producto?')) {
       this.productService.deleteProduct(id).subscribe({
-        next: () => this.loadPage(1),
-        error: (err) => console.error(err),
+        next: () => {
+          this.operationError.set(null);
+          this.loadPage(1);
+          this.loadStats();
+        },
+        error: () => this.operationError.set('No se pudo eliminar el producto.'),
       });
     }
-  }
-
-  adjustStock(product: Product, amount: number, notes: string) {
-    this.productService.adjustStock(product.id!, amount, notes).subscribe({
-      next: (res) => {
-        product.stock = res.new_stock;
-        product.is_low_stock = product.stock <= product.min_stock;
-        this.loadStats();
-      },
-    });
   }
 
   openAdjustStockDialog(product: Product) {
@@ -271,13 +273,28 @@ export class ProductListComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.productService.adjustStock(product.id!, result.amount, result.notes).subscribe({
-          next: (res) => {
-            this.loadPage(1);
-          },
-        });
+      if (!result) {
+        return;
       }
+
+      this.operationError.set(null);
+      this.productService.createInventoryMovement({
+        product: product.id!,
+        movement_type: result.movement_type,
+        quantity: result.quantity,
+        note: result.note,
+      }).subscribe({
+        next: () => {
+          this.loadPage(1);
+          this.loadStats();
+        },
+        error: (err) => {
+          const message = err?.error?.non_field_errors?.[0]
+            ?? err?.error?.detail
+            ?? 'No se pudo registrar el movimiento de inventario.';
+          this.operationError.set(message);
+        },
+      });
     });
   }
 
