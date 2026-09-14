@@ -10,7 +10,6 @@ from .serializers import (
 )
 from .permissions import ProductPermission
 from django.db import models as django_models
-from rest_framework.permissions import AllowAny
 from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -33,7 +32,7 @@ class StockMovementViewSet(viewsets.ReadOnlyModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [ProductPermission]
     filter_backends = [filters.SearchFilter]
     
     filterset_fields = ['category', 'supplier']
