@@ -7,7 +7,6 @@ on:
       - "backend/**"
       - "Dockerfile"
       - "docker-compose.yml"
-      - "pytest.ini"
       - ".env.example"
       - ".github/workflows/backend-tests.yml"
   push:
@@ -16,7 +15,6 @@ on:
       - "backend/**"
       - "Dockerfile"
       - "docker-compose.yml"
-      - "pytest.ini"
       - ".env.example"
       - ".github/workflows/backend-tests.yml"
 
