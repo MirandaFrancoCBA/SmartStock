@@ -5,6 +5,7 @@ import { ProductListComponent } from './features/products/product-list/product-l
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { authGuard } from './core/guards/auth-guard';
 import { StockHistoryComponent } from './features/products/stock-history/stock-history';
+import { CatalogManagementComponent } from './features/catalog/catalog-management';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -14,7 +15,8 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'products', component: ProductListComponent }, 
+      { path: 'products', component: ProductListComponent },
+      { path: 'catalog', component: CatalogManagementComponent },
       { path: 'history', component: StockHistoryComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
