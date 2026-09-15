@@ -24,6 +24,11 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def db_env(local_name: str, standard_name: str, default: str) -> str:
+    """Prefer SmartStock POSTGRES_* vars, then standard libpq PG* vars."""
+    return os.getenv(local_name) or os.getenv(standard_name) or default
+
+
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     raise RuntimeError(
@@ -66,11 +71,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {"default": {
     "ENGINE": "django.db.backends.postgresql",
-    "NAME": os.getenv("POSTGRES_DB", "smartstock"),
-    "USER": os.getenv("POSTGRES_USER", "smartstock_user"),
-    "PASSWORD": os.getenv("POSTGRES_PASSWORD", "smartstock_pass"),
-    "HOST": os.getenv("POSTGRES_HOST", "db"),
-    "PORT": os.getenv("POSTGRES_PORT", "5432"),
+    "NAME": db_env("POSTGRES_DB", "PGDATABASE", "smartstock"),
+    "USER": db_env("POSTGRES_USER", "PGUSER", "smartstock_user"),
+    "PASSWORD": db_env("POSTGRES_PASSWORD", "PGPASSWORD", "smartstock_pass"),
+    "HOST": db_env("POSTGRES_HOST", "PGHOST", "db"),
+    "PORT": db_env("POSTGRES_PORT", "PGPORT", "5432"),
 }}
 
 AUTH_PASSWORD_VALIDATORS = [
