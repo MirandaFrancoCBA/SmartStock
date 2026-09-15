@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 
 from products.views import CategoryViewSet, SupplierViewSet, ProductViewSet, StockMovementViewSet
 from inventory.views import InventoryMovementViewSet
-from config.views import current_user
+from config.views import current_user, health_check
 from drf_spectacular.views import ( # type: ignore
     SpectacularAPIView,
     SpectacularSwaggerView,
@@ -35,6 +35,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/', include(router.urls)),
+
+    path('api/health/', health_check, name='health-check'),
 
     path('api/me/', current_user, name='current-user'),
 
