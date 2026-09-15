@@ -151,14 +151,14 @@ docker compose exec backend python manage.py migrate
 Create the SmartStock groups (`Admin`, `Staff`, `Viewer`) idempotently:
 
 ```bash
-docker compose exec backend python manage.py bootstrap_roles
+docker compose exec backend python manage.py seed_roles
 ```
 
 ### 6. Create an admin user and assign the SmartStock role
 
 ```bash
 docker compose exec backend python manage.py createsuperuser
-docker compose exec backend python manage.py bootstrap_roles --username admin --role Admin
+docker compose exec backend python manage.py seed_roles --username admin --role Admin
 ```
 
 Replace `admin` with the username you created. Django's `is_superuser` flag and SmartStock's application role are deliberately separate: SmartStock API/UI authorization uses the `Admin`, `Staff` and `Viewer` groups.
@@ -166,8 +166,8 @@ Replace `admin` with the username you created. Django's `is_superuser` flag and 
 To assign an existing user to another SmartStock role:
 
 ```bash
-docker compose exec backend python manage.py bootstrap_roles --username staff --role Staff
-docker compose exec backend python manage.py bootstrap_roles --username viewer --role Viewer
+docker compose exec backend python manage.py seed_roles --username staff --role Staff
+docker compose exec backend python manage.py seed_roles --username viewer --role Viewer
 ```
 
 The command replaces only the user's SmartStock role and leaves unrelated Django groups intact.
