@@ -130,7 +130,7 @@ POSTGRES_HOST=db
 POSTGRES_PORT=5432
 ```
 
-Do not commit the real `.env` file or production secrets.
+Do not commit the real `.env` file or production secrets. When `DJANGO_DEBUG=True`, SmartStock also accepts browser origins on dynamic `localhost` and `127.0.0.1` development ports.
 
 ### 3. Start the stack
 
@@ -146,11 +146,31 @@ The backend is exposed on port `8000` by the current Docker Compose configuratio
 docker compose exec backend python manage.py migrate
 ```
 
-### 5. Create an admin user
+### 5. Bootstrap RBAC roles
+
+Create the SmartStock groups (`Admin`, `Staff`, `Viewer`) idempotently:
+
+```bash
+docker compose exec backend python manage.py bootstrap_roles
+```
+
+### 6. Create an admin user and assign the SmartStock role
 
 ```bash
 docker compose exec backend python manage.py createsuperuser
+docker compose exec backend python manage.py bootstrap_roles --username admin --role Admin
 ```
+
+Replace `admin` with the username you created. Django's `is_superuser` flag and SmartStock's application role are deliberately separate: SmartStock API/UI authorization uses the `Admin`, `Staff` and `Viewer` groups.
+
+To assign an existing user to another SmartStock role:
+
+```bash
+docker compose exec backend python manage.py bootstrap_roles --username staff --role Staff
+docker compose exec backend python manage.py bootstrap_roles --username viewer --role Viewer
+```
+
+The command replaces only the user's SmartStock role and leaves unrelated Django groups intact.
 
 ## Tests and CI
 
@@ -160,11 +180,7 @@ Run the backend suite inside the container:
 docker compose exec backend pytest
 ```
 
-Current verified baseline on `main`:
-- **19 tests passed**
-- **79% total coverage**
-- CI executes pytest against **PostgreSQL 16** on relevant pull requests and pushes to `main`
-- Critical flows covered include authentication, product protection, inventory IN/OUT, stock validation, RBAC and analytics reports
+CI executes pytest against **PostgreSQL 16** on relevant pull requests and pushes to `main`. Critical flows covered include authentication, product protection, inventory IN/OUT, stock validation, RBAC, role bootstrap and analytics reports.
 
 ## v1.0 roadmap
 
