@@ -40,3 +40,41 @@ def test_seed_roles_requires_username_and_role_together():
 def test_seed_roles_rejects_unknown_user():
     with pytest.raises(CommandError, match="does not exist"):
         call_command("seed_roles", username="missing", role="Admin")
+
+
+@pytest.mark.django_db
+def test_seed_demo_users_skips_when_not_configured(monkeypatch):
+    for name in (
+        "SMARTSTOCK_DEMO_ADMIN_USERNAME",
+        "SMARTSTOCK_DEMO_ADMIN_PASSWORD",
+        "SMARTSTOCK_DEMO_STAFF_USERNAME",
+        "SMARTSTOCK_DEMO_STAFF_PASSWORD",
+        "SMARTSTOCK_DEMO_VIEWER_USERNAME",
+        "SMARTSTOCK_DEMO_VIEWER_PASSWORD",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    call_command("seed_demo_users")
+    assert get_user_model().objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_seed_demo_users_creates_user_with_role(monkeypatch):
+    call_command("seed_roles")
+    monkeypatch.setenv("SMARTSTOCK_DEMO_VIEWER_USERNAME", "demo_viewer")
+    monkeypatch.setenv("SMARTSTOCK_DEMO_VIEWER_PASSWORD", "safe-demo-password")
+
+    call_command("seed_demo_users")
+
+    user = get_user_model().objects.get(username="demo_viewer")
+    assert user.check_password("safe-demo-password")
+    assert set(user.groups.values_list("name", flat=True)) == {"Viewer"}
+
+
+@pytest.mark.django_db
+def test_seed_demo_users_rejects_partial_credentials(monkeypatch):
+    monkeypatch.setenv("SMARTSTOCK_DEMO_ADMIN_USERNAME", "demo_admin")
+    monkeypatch.delenv("SMARTSTOCK_DEMO_ADMIN_PASSWORD", raising=False)
+
+    with pytest.raises(CommandError, match="must be configured together"):
+        call_command("seed_demo_users")
