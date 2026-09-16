@@ -12,7 +12,7 @@ def report_user(user):
 
 
 @pytest.mark.django_db
-def test_low_stock_report_returns_products_under_default_threshold(
+def test_low_stock_report_uses_each_products_minimum_stock(
     api_client, category, supplier, report_user
 ):
     low = Product.objects.create(
@@ -21,7 +21,8 @@ def test_low_stock_report_returns_products_under_default_threshold(
         category=category,
         supplier=supplier,
         price=10,
-        stock=4,
+        stock=40,
+        min_stock=50,
     )
     Product.objects.create(
         name="Healthy stock",
@@ -30,6 +31,7 @@ def test_low_stock_report_returns_products_under_default_threshold(
         supplier=supplier,
         price=10,
         stock=20,
+        min_stock=10,
     )
     api_client.force_authenticate(user=report_user)
 
@@ -38,6 +40,7 @@ def test_low_stock_report_returns_products_under_default_threshold(
     assert response.status_code == 200
     returned_ids = {item["id"] for item in response.data}
     assert low.id in returned_ids
+    assert len(returned_ids) == 1
 
 
 @pytest.mark.django_db
