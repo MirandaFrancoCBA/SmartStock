@@ -4,9 +4,19 @@ SmartStock is a full-stack inventory management project built to model real busi
 
 The backend uses **Django + Django REST Framework**, runs on **PostgreSQL 16**, and is containerized with **Docker / Docker Compose**. The repository also includes an **Angular** frontend that consumes the REST API.
 
+## Live demo
+
+- Frontend: https://smartstock-frontend-aozn.onrender.com
+- Backend API: https://smartstock-api-zh2d.onrender.com/api/
+- Health check: https://smartstock-api-zh2d.onrender.com/api/health/
+- OpenAPI / Swagger: https://smartstock-api-zh2d.onrender.com/api/docs/
+- ReDoc: https://smartstock-api-zh2d.onrender.com/api/redoc/
+
+The production deployment uses Render for the Angular static site, Django web service and managed PostgreSQL database. Demo accounts for the Admin, Staff and Viewer roles are provisioned from hosting-provider environment variables; passwords are never stored in the repository.
+
 ## Current status
 
-SmartStock is approaching its first portfolio-ready release (`v1.0`). Core backend and frontend flows, JWT authentication, RBAC, inventory operations, analytics, OpenAPI documentation, automated tests and CI are implemented. Production runtime configuration is prepared; public provider URLs and the final public smoke test remain pending.
+SmartStock is in final `v1.0` release validation. Core backend and frontend flows, JWT authentication, RBAC, inventory operations, analytics, OpenAPI documentation, automated tests, CI and the public production deployment are implemented and operational.
 
 ## Tech stack
 
@@ -33,6 +43,7 @@ SmartStock is approaching its first portfolio-ready release (`v1.0`). Core backe
 - Gunicorn
 - WhiteNoise
 - GitHub Actions
+- Render
 - Environment-based configuration
 
 ## Core features
@@ -105,6 +116,7 @@ SmartStock/
 ├── .github/workflows/       # CI
 ├── Dockerfile
 ├── docker-compose.yml
+├── render.yaml
 └── README.md
 ```
 
@@ -119,24 +131,7 @@ cd SmartStock
 
 ### 2. Configure environment variables
 
-Copy `.env.example` to `.env` and replace development placeholders as needed.
-
-```text
-DJANGO_SECRET_KEY=replace-with-a-long-random-secret
-DJANGO_DEBUG=True
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,backend
-DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:4200,http://127.0.0.1:4200
-DJANGO_CSRF_TRUSTED_ORIGINS=
-DJANGO_CORS_ALLOW_CREDENTIALS=True
-
-POSTGRES_DB=smartstock
-POSTGRES_USER=smartstock_user
-POSTGRES_PASSWORD=change-me
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-```
-
-Do not commit the real `.env` file or production secrets. When `DJANGO_DEBUG=True`, SmartStock also accepts browser origins on dynamic `localhost` and `127.0.0.1` development ports.
+Copy `.env.example` to `.env` and replace development placeholders as needed. Do not commit the real `.env` file or production secrets.
 
 ### 3. Start the stack
 
@@ -146,108 +141,46 @@ docker compose up -d --build
 
 The backend is exposed on port `8000` by the current Docker Compose configuration.
 
-### 4. Apply migrations
+### 4. Apply migrations and bootstrap RBAC
 
 ```bash
 docker compose exec backend python manage.py migrate
-```
-
-### 5. Bootstrap RBAC roles
-
-Create the SmartStock groups (`Admin`, `Staff`, `Viewer`) idempotently:
-
-```bash
 docker compose exec backend python manage.py seed_roles
 ```
 
-### 6. Create an admin user and assign the SmartStock role
+### 5. Create an admin user and assign the SmartStock role
 
 ```bash
 docker compose exec backend python manage.py createsuperuser
 docker compose exec backend python manage.py seed_roles --username admin --role Admin
 ```
 
-Replace `admin` with the username you created. Django's `is_superuser` flag and SmartStock's application role are deliberately separate: SmartStock API/UI authorization uses the `Admin`, `Staff` and `Viewer` groups.
+Django's `is_superuser` flag and SmartStock's application role are deliberately separate: SmartStock API/UI authorization uses the `Admin`, `Staff` and `Viewer` groups.
 
-To assign an existing user to another SmartStock role:
+## Production deployment
 
-```bash
-docker compose exec backend python manage.py seed_roles --username staff --role Staff
-docker compose exec backend python manage.py seed_roles --username viewer --role Viewer
-```
+The root `render.yaml` defines the Django web service and managed PostgreSQL integration. Production configuration and credentials are supplied through environment variables rather than committed files.
 
-The command replaces only the user's SmartStock role and leaves unrelated Django groups intact.
-
-## Production deployment checklist
-
-The repository is provider-agnostic. The same application image can be connected to a managed PostgreSQL service and an HTTPS frontend without committing provider secrets.
-
-### Backend environment
-
-Set production values in the hosting provider, not in the repository:
+At container startup SmartStock performs the idempotent production bootstrap sequence:
 
 ```text
-DJANGO_SECRET_KEY=<strong-random-secret>
-DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=<backend-public-hostname>
-DJANGO_CORS_ALLOWED_ORIGINS=https://<frontend-public-hostname>
-DJANGO_CSRF_TRUSTED_ORIGINS=https://<frontend-public-hostname>
-DJANGO_CORS_ALLOW_CREDENTIALS=True
-
-POSTGRES_DB=<provider-database>
-POSTGRES_USER=<provider-user>
-POSTGRES_PASSWORD=<provider-password>
-POSTGRES_HOST=<provider-host>
-POSTGRES_PORT=<provider-port>
+migrate -> seed_roles -> seed_demo_users -> Gunicorn
 ```
 
-The production container starts Django with Gunicorn and respects the provider's `PORT` variable. WhiteNoise serves Django static assets. `DEBUG` defaults to false when omitted.
+`seed_demo_users` is environment-driven. If demo credentials are not configured, it safely skips provisioning. If configured, the command creates or updates each demo user and assigns the corresponding SmartStock role. Passwords remain outside Git and can be rotated by changing the provider environment values and redeploying.
 
-### Database initialization
+The Angular production environment points to the public HTTPS backend API, and the backend CORS configuration explicitly allows the deployed frontend origin.
 
-After connecting the managed PostgreSQL database, run:
+## Public verification
 
-```bash
-python manage.py migrate
-python manage.py seed_roles
-```
+The public deployment has passed the main end-to-end path: Angular loads over HTTPS, users authenticate through JWT against the Django API, production data is stored in PostgreSQL, and role-aware application access is operational.
 
-Create a portfolio/demo administrator through the provider shell or another secure administrative channel, then assign its application role:
+Before tagging `v1.0.0`, the final release checks are:
 
-```bash
-python manage.py createsuperuser
-python manage.py seed_roles --username <username> --role Admin
-```
-
-Do not place demo passwords, database credentials or Django secrets in Git, build logs or this README.
-
-### Frontend production endpoint
-
-Angular development uses the local API. Production builds replace that environment with `src/environments/environment.production.ts`.
-
-Before the final frontend deploy, replace the placeholder API origin there with the real HTTPS backend URL, keeping the `/api` suffix, then build the production application:
-
-```bash
-npm ci
-npm run build
-```
-
-The public frontend origin must match the backend `DJANGO_CORS_ALLOWED_ORIGINS` and `DJANGO_CSRF_TRUSTED_ORIGINS` values.
-
-### Public verification
-
-Once provider URLs exist, verify all of the following before declaring `v1.0` deployed:
-
-- `GET https://<backend>/api/health/` returns HTTP 200
-- `https://<backend>/api/docs/` loads the OpenAPI UI over HTTPS
-- Angular loads from its public HTTPS URL without mixed-content or CORS errors
-- Admin can authenticate, manage catalog data and perform IN/OUT movements
-- Staff can create/edit and perform movements but cannot delete protected resources
-- Viewer remains read-only
-- logout clears the session and a refresh token can no longer silently restore it
-- data remains available after an application restart/redeploy
-
-The actual public frontend/backend URLs are intentionally not documented until those services exist and have passed this smoke test.
+- verify a deliberately low-stock product appears in the dashboard alert report
+- verify direct refresh/navigation on Angular client-side routes through the static host
+- complete the final Admin / Staff / Viewer permission smoke test
+- review outstanding frontend dependency audit findings and document any accepted residual risk
 
 ## Tests and CI
 
@@ -259,22 +192,21 @@ docker compose exec backend pytest
 
 CI executes pytest against **PostgreSQL 16** on relevant pull requests and pushes to `main`. Critical flows covered include authentication, product protection, inventory IN/OUT, stock validation, RBAC, role bootstrap, health checks and analytics reports.
 
-## v1.0 roadmap
+## Release roadmap
 
-The release is intentionally scoped to finishing and hardening the existing product rather than adding unrelated features.
+### v1.0
+Production-ready portfolio release: authenticated inventory management, RBAC, analytics, automated tests/CI and public deployment.
 
-1. Stabilize configuration, repository hygiene and documentation
-2. Complete the essential Angular flows
-3. Consolidate backend tests and CI
-4. Prepare production configuration and deployment
-5. Publish the final demo and portfolio documentation
+### v1.1
+UI/UX polish: visual identity, navigation hierarchy, dashboard presentation, tables, forms, responsive behavior and user-facing states.
 
-Features such as WebSockets, background jobs or additional infrastructure are considered post-`v1.0` unless they become necessary for a core workflow.
+### v2.0
+Candidate major features include supplier catalog import and assisted product/price normalization workflows.
 
 ## Author
 
 **Franco Rodrigo Miranda**  
-Software Development Student / Backend Developer – Argentina
+Backend Developer / Software Development Student – Argentina
 
 - LinkedIn: https://www.linkedin.com/in/franco-rodrigo-miranda-993710248
 - GitHub: https://github.com/MirandaFrancoCBA
