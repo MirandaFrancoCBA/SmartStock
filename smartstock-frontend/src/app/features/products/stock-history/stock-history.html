@@ -1,62 +1,30 @@
-<mat-card class="history-card">
-  <mat-card-header>
-    <mat-card-title>Auditoría de Inventario</mat-card-title>
-    <mat-card-subtitle>Registro histórico de entradas y salidas</mat-card-subtitle>
-  </mat-card-header>
+<section class="history-page">
+  <header class="page-header">
+    <div><span class="eyebrow">Auditoría</span><h1>Historial de inventario</h1><p>Revisá las entradas y salidas registradas y quién realizó cada movimiento.</p></div>
+    <button mat-stroked-button (click)="loadMovements()" [disabled]="loading()"><mat-icon>refresh</mat-icon>Actualizar</button>
+  </header>
 
-  <mat-card-content>
-    @if (errorMessage()) {
-      <div style="padding: 16px 0; color: #b3261e;">
-        {{ errorMessage() }}
-      </div>
-    }
-
-    <table mat-table [dataSource]="movements()" class="mat-elevation-z2">
-      <ng-container matColumnDef="fecha">
-        <th mat-header-cell *matHeaderCellDef> Fecha </th>
-        <td mat-cell *matCellDef="let m"> {{ m.created_at | date:'short' }} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="producto">
-        <th mat-header-cell *matHeaderCellDef> Producto </th>
-        <td mat-cell *matCellDef="let m"> <strong>{{ m.product_name }}</strong> </td>
-      </ng-container>
-
-      <ng-container matColumnDef="usuario">
-        <th mat-header-cell *matHeaderCellDef> Realizado por </th>
-        <td mat-cell *matCellDef="let m"> {{ m.user_username || 'Sistema' }} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="tipo">
-        <th mat-header-cell *matHeaderCellDef> Tipo </th>
-        <td mat-cell *matCellDef="let m">
-          <span [style.color]="m.movement_type === 'IN' ? '#2e7d32' : '#d32f2f'" style="font-weight: 500;">
-            <mat-icon style="font-size: 18px; vertical-align: middle;">
-              {{ m.movement_type === 'IN' ? 'trending_up' : 'trending_down' }}
-            </mat-icon>
-            {{ m.movement_type === 'IN' ? 'Entrada' : 'Salida' }}
-          </span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="cantidad">
-        <th mat-header-cell *matHeaderCellDef> Cantidad </th>
-        <td mat-cell *matCellDef="let m"> {{ m.quantity }} un. </td>
-      </ng-container>
-
-      <ng-container matColumnDef="notas">
-        <th mat-header-cell *matHeaderCellDef> Notas </th>
-        <td mat-cell *matCellDef="let m"> <small>{{ m.note || '—' }}</small> </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-
-    @if (!errorMessage() && movements().length === 0) {
-      <div style="padding: 20px; text-align: center; color: gray;">
-        No hay movimientos registrados aún.
-      </div>
-    }
-  </mat-card-content>
-</mat-card>
+  <mat-card class="history-card">
+    <mat-card-content>
+      @if (loading()) {
+        <div class="state-panel" role="status"><mat-spinner diameter="30"></mat-spinner><div><strong>Cargando movimientos</strong><span>Consultando el historial del inventario.</span></div></div>
+      } @else if (errorMessage()) {
+        <div class="state-panel error" role="alert"><mat-icon>error_outline</mat-icon><div><strong>No pudimos cargar el historial</strong><span>{{ errorMessage() }}</span></div><button mat-stroked-button (click)="loadMovements()">Reintentar</button></div>
+      } @else if (movements().length === 0) {
+        <div class="state-panel empty"><mat-icon>history</mat-icon><div><strong>Todavía no hay movimientos</strong><span>Las entradas y salidas aparecerán acá cuando se registren.</span></div></div>
+      } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="movements()">
+            <ng-container matColumnDef="fecha"><th mat-header-cell *matHeaderCellDef>Fecha</th><td mat-cell *matCellDef="let m"><div class="date-cell"><strong>{{ m.created_at | date:'dd/MM/yy' }}</strong><span>{{ m.created_at | date:'HH:mm' }}</span></div></td></ng-container>
+            <ng-container matColumnDef="producto"><th mat-header-cell *matHeaderCellDef>Producto</th><td mat-cell *matCellDef="let m"><div class="product-cell"><div class="product-icon"><mat-icon>inventory_2</mat-icon></div><strong>{{ m.product_name }}</strong></div></td></ng-container>
+            <ng-container matColumnDef="usuario"><th mat-header-cell *matHeaderCellDef>Realizado por</th><td mat-cell *matCellDef="let m"><span class="user-chip"><mat-icon>person</mat-icon>{{ m.user_username || 'Sistema' }}</span></td></ng-container>
+            <ng-container matColumnDef="tipo"><th mat-header-cell *matHeaderCellDef>Tipo</th><td mat-cell *matCellDef="let m"><span class="movement-chip" [class.outgoing]="m.movement_type === 'OUT'"><mat-icon>{{ m.movement_type === 'IN' ? 'south' : 'north' }}</mat-icon>{{ m.movement_type === 'IN' ? 'Entrada' : 'Salida' }}</span></td></ng-container>
+            <ng-container matColumnDef="cantidad"><th mat-header-cell *matHeaderCellDef>Cantidad</th><td mat-cell *matCellDef="let m"><strong class="quantity" [class.outgoing]="m.movement_type === 'OUT'">{{ m.movement_type === 'IN' ? '+' : '−' }}{{ m.quantity }} un.</strong></td></ng-container>
+            <ng-container matColumnDef="notas"><th mat-header-cell *matHeaderCellDef>Notas</th><td mat-cell *matCellDef="let m"><span class="note">{{ m.note || 'Sin notas' }}</span></td></ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr><tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</section>
