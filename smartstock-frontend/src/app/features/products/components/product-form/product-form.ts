@@ -29,7 +29,7 @@ import { Category, Supplier } from '../../../../core/models/catalog.model';
         <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>Proveedor</mat-label><mat-select formControlName="supplier">@for (supplier of suppliers(); track supplier.id) { <mat-option [value]="supplier.id">{{ supplier.name }}</mat-option> }</mat-select></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>Precio</mat-label><input matInput type="number" formControlName="price" min="0.01" /><span matTextPrefix>$&nbsp;</span></mat-form-field>
         <mat-form-field appearance="outline"><mat-label>{{ data ? 'Stock actual' : 'Stock inicial' }}</mat-label><input matInput type="number" formControlName="stock" [readonly]="!!data" min="0" />@if (data) { <mat-hint>Modificalo desde Registrar movimiento.</mat-hint> }</mat-form-field>
-        <mat-form-field appearance="outline" class="full-field"><mat-label>Stock mínimo para alerta</mat-label><input matInput type="number" formControlName="min_stock" min="0" /><mat-hint>Se marcará como stock bajo al alcanzar este valor.</mat-hint></mat-form-field>
+        <mat-form-field appearance="outline"><mat-label>Stock mínimo para alerta</mat-label><input matInput type="number" formControlName="min_stock" min="0" /><mat-hint>Se marcará como stock bajo al alcanzar este valor.</mat-hint></mat-form-field>
       </div>
       @if (loadingCatalog()) { <div class="feedback neutral"><mat-icon>sync</mat-icon><span>Cargando categorías y proveedores…</span></div> }
       @if (catalogError()) { <div class="feedback error" role="alert"><mat-icon>error_outline</mat-icon><span>{{ catalogError() }}</span></div> }
@@ -43,9 +43,9 @@ import { Category, Supplier } from '../../../../core/models/catalog.model';
     .dialog-heading h2 { margin: 0; font-size: 1.2rem; }
     .dialog-heading p { margin: 3px 0 0; color: var(--smartstock-muted); font-size: .78rem; font-weight: 400; }
     .dialog-icon { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border-radius: 12px; background: var(--smartstock-accent-soft); color: var(--smartstock-accent-strong); }
-    mat-dialog-content { padding-top: 8px !important; }
-    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; min-width: min(540px, 72vw); padding-top: 4px; }
-    .full-field { grid-column: 1 / -1; }
+    mat-dialog-content { padding-top: 8px !important; overflow-x: hidden; }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; min-width: 0; padding-top: 4px; }
+    .form-grid mat-form-field { width: 100%; min-width: 0; }
     .feedback { display: flex; align-items: center; gap: 9px; margin-top: 10px; padding: 11px 13px; border-radius: 11px; font-size: .78rem; }
     .feedback mat-icon { flex: 0 0 auto; }
     .feedback.neutral { background: var(--smartstock-page); color: var(--smartstock-muted); }
@@ -53,7 +53,7 @@ import { Category, Supplier } from '../../../../core/models/catalog.model';
     .feedback.error { background: #fff5f4; color: #a33b32; }
     mat-dialog-actions { gap: 6px; padding: 14px 24px 20px; }
     .primary-action { background: var(--smartstock-accent-strong); color: white; }
-    @media (max-width: 650px) { .form-grid { grid-template-columns: 1fr; min-width: 0; } .full-field { grid-column: auto; } .dialog-heading p { display: none; } }
+    @media (max-width: 650px) { .dialog-heading p { display: none; } mat-dialog-actions { padding-inline: 16px; } }
   `],
 })
 export class ProductFormComponent implements OnInit {
