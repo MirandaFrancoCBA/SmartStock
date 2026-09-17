@@ -1,41 +1,56 @@
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #drawer mode="side" opened class="sidenav">
-    <mat-toolbar>Menú</mat-toolbar>
+<mat-sidenav-container class="app-shell">
+  <mat-sidenav #drawer mode="side" opened class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">SS</div>
+      <div>
+        <strong>SmartStock</strong>
+        <span>Inventory control</span>
+      </div>
+    </div>
 
-    <mat-nav-list>
-      <a mat-list-item routerLink="/dashboard">
-        <mat-icon matListItemIcon>dashboard</mat-icon>
+    <div class="nav-label">Workspace</div>
+    <mat-nav-list class="nav-list">
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>space_dashboard</mat-icon>
         <span matListItemTitle>Dashboard</span>
       </a>
-      <a mat-list-item routerLink="/products">
+      <a mat-list-item routerLink="/products" routerLinkActive="active-link">
         <mat-icon matListItemIcon>inventory_2</mat-icon>
         <span matListItemTitle>Productos</span>
       </a>
-      <a mat-list-item routerLink="/catalog">
+      <a mat-list-item routerLink="/catalog" routerLinkActive="active-link">
         <mat-icon matListItemIcon>category</mat-icon>
         <span matListItemTitle>Catálogo</span>
       </a>
-      <a mat-list-item routerLink="/history">
+      <a mat-list-item routerLink="/history" routerLinkActive="active-link">
         <mat-icon matListItemIcon>history</mat-icon>
         <span matListItemTitle>Historial</span>
       </a>
-      <button mat-list-item (click)="logout()">
+    </mat-nav-list>
+
+    <div class="sidebar-footer">
+      <button mat-list-item class="logout-button" (click)="logout()">
         <mat-icon matListItemIcon>logout</mat-icon>
         <span matListItemTitle>Salir</span>
       </button>
-    </mat-nav-list>
+    </div>
   </mat-sidenav>
 
-  <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button mat-icon-button (click)="drawer.toggle()">
+  <mat-sidenav-content class="content-shell">
+    <mat-toolbar class="topbar">
+      <button mat-icon-button (click)="drawer.toggle()" aria-label="Abrir o cerrar navegación">
         <mat-icon>menu</mat-icon>
       </button>
-      <span>SmartStock</span>
+      <div class="topbar-title">
+        <span class="eyebrow">SmartStock</span>
+        <strong>Panel de inventario</strong>
+      </div>
+      <span class="topbar-spacer"></span>
+      <span class="version-chip">v1.1</span>
     </mat-toolbar>
 
-    <div class="main-content">
+    <main class="main-content">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </mat-sidenav-content>
 </mat-sidenav-container>
