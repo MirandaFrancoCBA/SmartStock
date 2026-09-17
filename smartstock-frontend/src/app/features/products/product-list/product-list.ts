@@ -12,64 +12,148 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/input';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { StockAdjustComponent } from '../components/stock-adjust/stock-adjust';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatCardModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatDialogModule, MatFormField, MatLabel, MatInputModule],
+  imports: [CommonModule, MatTableModule, MatCardModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatDialogModule, MatFormField, MatLabel, MatInputModule, MatProgressSpinnerModule],
   template: `
-    <mat-card>
-      <mat-card-header><mat-card-title>Inventario de Productos</mat-card-title></mat-card-header>
+    <section class="products-page">
+      <header class="page-header">
+        <div>
+          <span class="eyebrow">Catálogo</span>
+          <h1>Inventario de productos</h1>
+          <p>Consultá existencias, precios y alertas, o registrá cambios según tu rol.</p>
+        </div>
+        @if (canManageProducts()) {
+          <button mat-flat-button class="primary-action" (click)="openCreateDialog()">
+            <mat-icon>add</mat-icon> Nuevo producto
+          </button>
+        }
+      </header>
 
-      @if (canManageProducts()) {
-        <div class="header-actions" style="padding: 16px;">
-          <button mat-raised-button color="primary" (click)="openCreateDialog()">+ Nuevo Producto</button>
+      @if (operationError()) {
+        <div class="feedback error" role="alert">
+          <mat-icon>error_outline</mat-icon><span>{{ operationError() }}</span>
+          <button mat-icon-button aria-label="Cerrar mensaje" (click)="operationError.set(null)"><mat-icon>close</mat-icon></button>
         </div>
       }
 
-      <mat-card-content>
-        @if (operationError()) { <p class="operation-error">{{ operationError() }}</p> }
+      <section class="stats-grid" aria-label="Resumen del inventario">
+        <mat-card class="stat-card">
+          <mat-card-content><div class="stat-icon"><mat-icon>inventory_2</mat-icon></div><div><span>Stock total</span><strong>{{ globalStats().total_stock }} un.</strong></div></mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content><div class="stat-icon"><mat-icon>payments</mat-icon></div><div><span>Valor inventario</span><strong>{{ globalStats().inventory_value | currency }}</strong></div></mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card alert-stat" [class.selected]="onlyLowStock()" (click)="toggleLowStockFilter()" role="button" tabindex="0" (keydown.enter)="toggleLowStockFilter()" (keydown.space)="$event.preventDefault(); toggleLowStockFilter()">
+          <mat-card-content><div class="stat-icon"><mat-icon>warning_amber</mat-icon></div><div><span>{{ onlyLowStock() ? 'Filtro activo' : 'Alertas activas' }}</span><strong>{{ globalStats().active_alerts }}</strong><small>{{ onlyLowStock() ? 'Mostrando solo stock bajo' : 'Ver productos con stock bajo' }}</small></div></mat-card-content>
+        </mat-card>
+      </section>
 
-        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 10px;">
-          <mat-label>Buscar productos (Nombre o SKU)...</mat-label>
-          <input matInput (keyup)="onSearch($event)" placeholder="Ej: Tornillo" />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+      <mat-card class="inventory-card">
+        <mat-card-content>
+          <div class="toolbar">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+              <mat-label>Buscar por nombre o SKU</mat-label>
+              <input matInput (keyup)="onSearch($event)" placeholder="Ej. Tornillo M8" />
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+            @if (onlyLowStock()) {
+              <button mat-stroked-button (click)="toggleLowStockFilter()"><mat-icon>filter_alt_off</mat-icon> Quitar filtro</button>
+            }
+          </div>
 
-        <div class="dashboard-widgets" style="display: flex; gap: 20px; margin-bottom: 20px;">
-          <mat-card style="flex: 1; background-color: #e3f2fd;"><mat-card-content><div>STOCK TOTAL</div><strong>{{ globalStats().total_stock }} un.</strong></mat-card-content></mat-card>
-          <mat-card style="flex: 1; background-color: #f1f8e9;"><mat-card-content><div>VALOR INVENTARIO</div><strong>{{ globalStats().inventory_value | currency }}</strong></mat-card-content></mat-card>
-          <mat-card (click)="toggleLowStockFilter()" [style.background-color]="onlyLowStock() ? '#ffcdd2' : '#fff3e0'" style="flex: 1; cursor: pointer;">
-            <mat-card-content><div>{{ onlyLowStock() ? 'VIENDO SOLO ALERTAS' : 'ALERTAS ACTIVAS' }}</div><strong>{{ globalStats().active_alerts }}</strong></mat-card-content>
-          </mat-card>
-        </div>
+          @if (loading()) {
+            <div class="state-panel" role="status"><mat-spinner diameter="30"></mat-spinner><div><strong>Cargando productos</strong><span>Actualizando el inventario.</span></div></div>
+          } @else if (products().length === 0) {
+            <div class="state-panel empty"><mat-icon>inventory_2</mat-icon><div><strong>{{ currentSearch() || onlyLowStock() ? 'Sin coincidencias' : 'Todavía no hay productos' }}</strong><span>{{ currentSearch() || onlyLowStock() ? 'Probá otra búsqueda o quitá los filtros.' : 'Los productos aparecerán aquí cuando se registren.' }}</span></div></div>
+          } @else {
+            <div class="table-wrap">
+              <table mat-table [dataSource]="products()">
+                <ng-container matColumnDef="sku"><th mat-header-cell *matHeaderCellDef>SKU</th><td mat-cell *matCellDef="let element"><span class="sku">{{ element.sku }}</span></td></ng-container>
+                <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Producto</th><td mat-cell *matCellDef="let element"><div class="product-cell"><strong>{{ element.name }}</strong><small>{{ element.is_low_stock ? 'Requiere atención' : 'Stock disponible' }}</small></div></td></ng-container>
+                <ng-container matColumnDef="price"><th mat-header-cell *matHeaderCellDef>Precio</th><td mat-cell *matCellDef="let element"><strong class="price">{{ element.price | currency }}</strong></td></ng-container>
+                <ng-container matColumnDef="stock"><th mat-header-cell *matHeaderCellDef>Stock</th><td mat-cell *matCellDef="let element"><span class="stock-chip" [class.low]="element.is_low_stock"><mat-icon>{{ element.is_low_stock ? 'warning_amber' : 'check_circle' }}</mat-icon>{{ element.stock }} un.</span></td></ng-container>
 
-        <table mat-table [dataSource]="products()" class="mat-elevation-z8">
-          <ng-container matColumnDef="sku"><th mat-header-cell *matHeaderCellDef>SKU</th><td mat-cell *matCellDef="let element">{{ element.sku }}</td></ng-container>
-          <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Nombre</th><td mat-cell *matCellDef="let element">{{ element.name }}</td></ng-container>
-          <ng-container matColumnDef="price"><th mat-header-cell *matHeaderCellDef>Precio</th><td mat-cell *matCellDef="let element">{{ element.price | currency }}</td></ng-container>
-          <ng-container matColumnDef="stock"><th mat-header-cell *matHeaderCellDef>Stock</th><td mat-cell *matCellDef="let element"><span [class.low-stock-text]="element.is_low_stock">{{ element.stock }} @if (element.is_low_stock) { <mat-icon style="font-size: 16px; vertical-align: middle;">warning</mat-icon> }</span></td></ng-container>
+                @if (canManageProducts()) {
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef class="actions-header">Acciones</th>
+                    <td mat-cell *matCellDef="let element" class="actions-cell">
+                      <button mat-icon-button (click)="openAdjustStockDialog(element)" title="Registrar movimiento" aria-label="Registrar movimiento"><mat-icon>swap_vert</mat-icon></button>
+                      <button mat-icon-button (click)="openEditDialog(element)" title="Editar producto" aria-label="Editar producto"><mat-icon>edit</mat-icon></button>
+                      @if (canDeleteProducts()) { <button mat-icon-button class="danger-action" (click)="deleteProduct(element.id)" title="Eliminar producto" aria-label="Eliminar producto"><mat-icon>delete</mat-icon></button> }
+                    </td>
+                  </ng-container>
+                }
 
-          @if (canManageProducts()) {
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Acciones</th>
-              <td mat-cell *matCellDef="let element">
-                <button mat-icon-button color="accent" (click)="openEditDialog(element)" title="Editar producto"><mat-icon>edit</mat-icon></button>
-                @if (canDeleteProducts()) { <button mat-icon-button color="warn" (click)="deleteProduct(element.id)" title="Eliminar producto"><mat-icon>delete</mat-icon></button> }
-                <button mat-icon-button color="primary" (click)="openAdjustStockDialog(element)" title="Registrar movimiento"><mat-icon>swap_vert</mat-icon></button>
-              </td>
-            </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns" [class.low-stock-row]="row.is_low_stock"></tr>
+              </table>
+            </div>
           }
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns" [style.background-color]="row.is_low_stock ? '#ffebee' : null" [style.color]="row.is_low_stock ? '#d32f2f' : null"></tr>
-        </table>
-        <mat-paginator [length]="totalProducts()" [pageSize]="10" (page)="onPageChange($event)"></mat-paginator>
-      </mat-card-content>
-    </mat-card>
+          <mat-paginator [length]="totalProducts()" [pageSize]="10" (page)="onPageChange($event)" aria-label="Paginación de productos"></mat-paginator>
+        </mat-card-content>
+      </mat-card>
+    </section>
   `,
-  styles: [`table { width: 100%; margin-top: 20px; } mat-card { margin: 20px; } mat-paginator { margin-top: 10px; } .header-actions { display: flex; justify-content: flex-end; } .operation-error { color: #b3261e; margin: 0 0 16px; }`],
+  styles: [`
+    :host { display: block; }
+    .products-page { display: flex; flex-direction: column; gap: 22px; }
+    .page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+    .eyebrow { display: block; margin-bottom: 8px; color: var(--smartstock-accent-strong); font-size: .76rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+    .page-header p { margin: 10px 0 0; color: var(--smartstock-muted); font-size: .98rem; }
+    .primary-action { min-height: 44px; background: var(--smartstock-accent-strong); color: white; }
+    mat-card { border: 1px solid var(--smartstock-border); border-radius: var(--smartstock-radius); box-shadow: none; background: var(--smartstock-surface); }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .stat-card mat-card-content { display: flex; align-items: center; gap: 14px; min-height: 82px; padding: 18px; }
+    .stat-icon { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border-radius: 12px; background: var(--smartstock-accent-soft); color: var(--smartstock-accent-strong); }
+    .stat-card mat-card-content > div:last-child { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+    .stat-card span { color: var(--smartstock-muted); font-size: .76rem; font-weight: 700; }
+    .stat-card strong { font-size: 1.28rem; letter-spacing: -.02em; }
+    .stat-card small { color: var(--smartstock-muted); font-size: .7rem; }
+    .alert-stat { cursor: pointer; transition: border-color .15s ease, transform .15s ease; }
+    .alert-stat:hover { border-color: var(--smartstock-accent); transform: translateY(-1px); }
+    .alert-stat .stat-icon { background: #fff1d6; color: #8a5100; }
+    .alert-stat.selected { border-color: #d7a14a; background: #fffaf0; }
+    .inventory-card { overflow: hidden; }
+    .inventory-card > mat-card-content { padding: 20px; }
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .search-field { flex: 1; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--smartstock-border); border-radius: 14px; }
+    table { width: 100%; min-width: 680px; background: transparent; }
+    th.mat-mdc-header-cell { color: var(--smartstock-muted); font-size: .72rem; font-weight: 800; letter-spacing: .055em; text-transform: uppercase; }
+    td.mat-mdc-cell, th.mat-mdc-header-cell { border-bottom-color: var(--smartstock-border); }
+    tr.mat-mdc-row { transition: background .15s ease; }
+    tr.mat-mdc-row:hover { background: var(--smartstock-page); }
+    tr.low-stock-row { background: #fffaf5; }
+    .sku { padding: 5px 8px; border-radius: 7px; background: var(--smartstock-page); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .76rem; font-weight: 700; }
+    .product-cell { display: flex; flex-direction: column; gap: 3px; }
+    .product-cell strong, .price { font-size: .86rem; }
+    .product-cell small { color: var(--smartstock-muted); font-size: .72rem; }
+    .stock-chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border-radius: 999px; background: var(--smartstock-accent-soft); color: var(--smartstock-accent-strong); font-size: .74rem; font-weight: 800; white-space: nowrap; }
+    .stock-chip mat-icon { width: 15px; height: 15px; font-size: 15px; }
+    .stock-chip.low { background: #fff1d6; color: #8a5100; }
+    .actions-header, .actions-cell { text-align: right; white-space: nowrap; }
+    .actions-cell button { color: var(--smartstock-muted); }
+    .actions-cell button:hover { color: var(--smartstock-accent-strong); }
+    .actions-cell .danger-action:hover { color: #a33b32; }
+    mat-paginator { margin-top: 10px; background: transparent; }
+    .feedback, .state-panel { display: flex; align-items: center; gap: 12px; padding: 15px 17px; border-radius: 13px; }
+    .feedback.error { border: 1px solid #efc6c2; background: #fff5f4; color: #a33b32; }
+    .feedback span { flex: 1; font-size: .85rem; }
+    .state-panel { justify-content: center; min-height: 130px; border: 1px dashed var(--smartstock-border); background: var(--smartstock-page); color: var(--smartstock-muted); }
+    .state-panel > div { display: flex; flex-direction: column; gap: 3px; }
+    .state-panel strong { color: var(--mat-sys-on-surface); font-size: .88rem; }
+    .state-panel span { font-size: .78rem; }
+    .state-panel.empty > mat-icon { color: var(--smartstock-accent); }
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 650px) { .page-header { align-items: stretch; flex-direction: column; } .primary-action { align-self: flex-start; } .toolbar { align-items: stretch; flex-direction: column; } .toolbar button { align-self: flex-start; } .inventory-card > mat-card-content { padding: 14px; } }
+  `],
 })
 export class ProductListComponent implements OnInit {
   private productService = inject(ProductService);
@@ -81,6 +165,7 @@ export class ProductListComponent implements OnInit {
   totalProducts = signal(0);
   onlyLowStock = signal(false);
   operationError = signal<string | null>(null);
+  loading = signal(true);
   globalStats = signal({ inventory_value: 0, total_stock: 0, active_alerts: 0 });
 
   canManageProducts = () => this.authService.hasRole('Admin', 'Staff');
@@ -88,14 +173,20 @@ export class ProductListComponent implements OnInit {
   get displayedColumns(): string[] { return this.canManageProducts() ? ['sku', 'name', 'price', 'stock', 'actions'] : ['sku', 'name', 'price', 'stock']; }
 
   ngOnInit() { this.loadPage(1); this.loadStats(); }
-  loadPage(page: number) { this.productService.getProducts(page, this.currentSearch(), this.onlyLowStock()).subscribe({ next: (response: any) => { this.products.set(response.results); this.totalProducts.set(response.count); } }); }
+  loadPage(page: number) {
+    this.loading.set(true);
+    this.productService.getProducts(page, this.currentSearch(), this.onlyLowStock()).subscribe({
+      next: (response: any) => { this.products.set(response.results); this.totalProducts.set(response.count); this.loading.set(false); },
+      error: () => { this.operationError.set('No se pudieron cargar los productos.'); this.loading.set(false); },
+    });
+  }
   loadStats() { this.productService.getStats().subscribe({ next: (data) => this.globalStats.set(data), error: () => this.operationError.set('No se pudieron cargar las estadísticas.') }); }
   toggleLowStockFilter() { this.onlyLowStock.update((value) => !value); this.loadPage(1); }
   onSearch(event: Event) { this.currentSearch.set((event.target as HTMLInputElement).value); this.loadPage(1); }
   onPageChange(event: PageEvent) { this.loadPage(event.pageIndex + 1); }
 
-  openCreateDialog() { if (!this.canManageProducts()) return; const ref = this.dialog.open(ProductFormComponent, { width: '400px', data: null }); ref.afterClosed().subscribe((result) => { if (result) { this.loadPage(1); this.loadStats(); } }); }
-  openEditDialog(product: Product) { if (!this.canManageProducts()) return; const ref = this.dialog.open(ProductFormComponent, { width: '400px', data: product }); ref.afterClosed().subscribe((result) => { if (result) { this.loadPage(1); this.loadStats(); } }); }
+  openCreateDialog() { if (!this.canManageProducts()) return; const ref = this.dialog.open(ProductFormComponent, { width: '440px', maxWidth: 'calc(100vw - 32px)', data: null }); ref.afterClosed().subscribe((result) => { if (result) { this.loadPage(1); this.loadStats(); } }); }
+  openEditDialog(product: Product) { if (!this.canManageProducts()) return; const ref = this.dialog.open(ProductFormComponent, { width: '440px', maxWidth: 'calc(100vw - 32px)', data: product }); ref.afterClosed().subscribe((result) => { if (result) { this.loadPage(1); this.loadStats(); } }); }
   deleteProduct(id: number) { if (!this.canDeleteProducts()) return; if (confirm('¿Estás seguro de borrar este producto?')) { this.productService.deleteProduct(id).subscribe({ next: () => { this.operationError.set(null); this.loadPage(1); this.loadStats(); }, error: () => this.operationError.set('No se pudo eliminar el producto.') }); } }
-  openAdjustStockDialog(product: Product) { if (!this.canManageProducts()) return; const ref = this.dialog.open(StockAdjustComponent, { width: '350px', data: product }); ref.afterClosed().subscribe((result) => { if (!result) return; this.operationError.set(null); this.productService.createInventoryMovement({ product: product.id!, movement_type: result.movement_type, quantity: result.quantity, note: result.note }).subscribe({ next: () => { this.loadPage(1); this.loadStats(); }, error: (err) => this.operationError.set(err?.error?.non_field_errors?.[0] ?? err?.error?.detail ?? 'No se pudo registrar el movimiento de inventario.') }); }); }
+  openAdjustStockDialog(product: Product) { if (!this.canManageProducts()) return; const ref = this.dialog.open(StockAdjustComponent, { width: '390px', maxWidth: 'calc(100vw - 32px)', data: product }); ref.afterClosed().subscribe((result) => { if (!result) return; this.operationError.set(null); this.productService.createInventoryMovement({ product: product.id!, movement_type: result.movement_type, quantity: result.quantity, note: result.note }).subscribe({ next: () => { this.loadPage(1); this.loadStats(); }, error: (err) => this.operationError.set(err?.error?.non_field_errors?.[0] ?? err?.error?.detail ?? 'No se pudo registrar el movimiento de inventario.') }); }); }
 }
