@@ -2,6 +2,7 @@ from django.db.models import Sum, F
 from products.models import Product
 import logging
 
+
 def get_inventory_value():
 
     logger.info("Calculating total inventory value")
@@ -15,13 +16,16 @@ def get_inventory_value():
     }
 
 
-def get_low_stock_products(threshold=10):
+def get_low_stock_products(threshold=None):
 
     try:
 
-        logger.info(f"Fetching products with stock <= {threshold}")
-
-        products = Product.objects.filter(stock__lte=threshold)
+        if threshold is None:
+            logger.info("Fetching products at or below their configured minimum stock")
+            products = Product.objects.filter(stock__lte=F("min_stock"))
+        else:
+            logger.info(f"Fetching products with stock <= {threshold}")
+            products = Product.objects.filter(stock__lte=threshold)
 
         data = [
             {
@@ -69,6 +73,6 @@ def get_top_products(limit=5):
         logger.error(f"Error generating top products report: {e}")
 
         raise
-    
+
 
 logger = logging.getLogger("smartstock")
