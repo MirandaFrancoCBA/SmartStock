@@ -14,7 +14,7 @@ The backend uses **Django + Django REST Framework**, runs on **PostgreSQL 16**, 
 
 The production deployment uses Render for the Angular static site, Django web service and managed PostgreSQL database. Demo accounts for the Admin, Staff and Viewer roles are provisioned from hosting-provider environment variables; passwords are never stored in the repository.
 
-## Current status
+## Portfolio highlights\n\n- Production deployment with Angular, Django REST Framework and PostgreSQL\n- JWT authentication with Admin / Staff / Viewer RBAC\n- Auditable IN / OUT inventory movements and low-stock analytics\n- Dockerized local environment and reproducible Render deployment\n- Backend and frontend CI with automated validation\n- Responsive V1.1 interface validated in production\n\n## Current status
 
 SmartStock has a stable **v1.0.0** production release and a completed **v1.1 UI/UX polish** deployed to production. Core backend and frontend flows, JWT authentication, RBAC, inventory operations, analytics, OpenAPI documentation, automated tests, CI and the public deployment are operational.
 
