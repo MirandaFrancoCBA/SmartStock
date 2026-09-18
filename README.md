@@ -16,7 +16,7 @@ The production deployment uses Render for the Angular static site, Django web se
 
 ## Current status
 
-SmartStock is in final `v1.0` release validation. Core backend and frontend flows, JWT authentication, RBAC, inventory operations, analytics, OpenAPI documentation, automated tests, CI and the public production deployment are implemented and operational.
+SmartStock has a stable **v1.0.0** production release and a completed **v1.1 UI/UX polish** deployed to production. Core backend and frontend flows, JWT authentication, RBAC, inventory operations, analytics, OpenAPI documentation, automated tests, CI and the public deployment are operational.
 
 ## Tech stack
 
@@ -206,7 +206,7 @@ Candidate major features include supplier catalog import and assisted product/pr
 ## Author
 
 **Franco Rodrigo Miranda**  
-Backend Developer / Software Development Student – Argentina
+Backend Developer | Python & Django – Argentina
 
 - LinkedIn: https://www.linkedin.com/in/franco-rodrigo-miranda-993710248
 - GitHub: https://github.com/MirandaFrancoCBA
