@@ -14,7 +14,36 @@ The backend uses **Django + Django REST Framework**, runs on **PostgreSQL 16**, 
 
 The production deployment uses Render for the Angular static site, Django web service and managed PostgreSQL database. Demo accounts for the Admin, Staff and Viewer roles are provisioned from hosting-provider environment variables; passwords are never stored in the repository.
 
-## Portfolio highlights\n\n- Production deployment with Angular, Django REST Framework and PostgreSQL\n- JWT authentication with Admin / Staff / Viewer RBAC\n- Auditable IN / OUT inventory movements and low-stock analytics\n- Dockerized local environment and reproducible Render deployment\n- Backend and frontend CI with automated validation\n- Responsive V1.1 interface validated in production\n\n## Current status
+## Portfolio highlights\n\n- Production deployment with Angular, Django REST Framework and PostgreSQL\n- JWT authentication with Admin / Staff / Viewer RBAC\n- Auditable IN / OUT inventory movements and low-stock analytics\n- Dockerized local environment and reproducible Render deployment\n- Backend and frontend CI with automated validation\n- Responsive V1.1 interface validated in production\n\n## Visual tour
+
+### Dashboard
+Inventory value, low-stock alerts, highest-stock products and recent activity in one operational view.
+
+![SmartStock dashboard](docs/screenshots/dashboard.png)
+
+### Product inventory
+Searchable inventory with pricing, stock status and role-aware product and movement actions.
+
+![SmartStock product inventory](docs/screenshots/products.png)
+
+### Product workflow
+Responsive product creation form with catalog relationships, pricing and initial stock.
+
+![SmartStock new product form](docs/screenshots/product-form.png)
+
+### Catalog and audit trail
+Categories and suppliers are managed separately from inventory operations, while stock movements keep user, type, quantity, notes and timestamp context.
+
+![SmartStock catalog](docs/screenshots/catalog.png)
+
+![SmartStock inventory history](docs/screenshots/history.png)
+
+### Responsive interface
+The V1.1 shell adapts navigation and dashboard content for compact screens.
+
+![SmartStock responsive dashboard](docs/screenshots/responsive.png)
+
+## Current status
 
 SmartStock has a stable **v1.0.0** production release and a completed **v1.1 UI/UX polish** deployed to production. Core backend and frontend flows, JWT authentication, RBAC, inventory operations, analytics, OpenAPI documentation, automated tests, CI and the public deployment are operational.
 
