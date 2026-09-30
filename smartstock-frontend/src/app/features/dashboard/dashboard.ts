@@ -82,7 +82,7 @@ import { InventoryMovement } from '../../core/models/inventory-movement.model';
         </section>
 
         <section class="details-grid">
-          <mat-card class="panel-card low-stock-panel">
+          <mat-card class="panel-card low-stock-panel" [class.needs-attention]="lowStockProducts().length > 0">
             <mat-card-header>
               <div mat-card-avatar class="panel-icon alert-icon"><mat-icon>inventory</mat-icon></div>
               <mat-card-title>Alertas de stock</mat-card-title>
@@ -182,7 +182,7 @@ import { InventoryMovement } from '../../core/models/inventory-movement.model';
     .refresh-button { min-height: 42px; border-color: var(--smartstock-border); }
     .stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     mat-card { border: 1px solid var(--smartstock-border); border-radius: var(--smartstock-radius); box-shadow: none; background: var(--smartstock-surface); }
-    .metric-card { position: relative; overflow: hidden; }
+    .metric-card { position: relative; overflow: hidden; transition: transform var(--smartstock-transition), box-shadow var(--smartstock-transition); }\n    .metric-card:hover { transform: translateY(-2px); box-shadow: var(--smartstock-shadow-sm); }\n    .primary-metric { border-color: color-mix(in srgb, var(--smartstock-accent) 28%, var(--smartstock-border)); background: linear-gradient(145deg, var(--smartstock-surface) 45%, var(--smartstock-accent-soft)); }
     .metric-card::after { position: absolute; inset: auto -35px -55px auto; width: 120px; height: 120px; border-radius: 50%; background: var(--smartstock-accent-soft); content: ''; opacity: .6; }
     .metric-card mat-card-content { position: relative; z-index: 1; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 5px 12px; padding: 22px; }
     .metric-icon, .panel-icon { display: grid; place-items: center; border-radius: 12px; background: var(--smartstock-accent-soft); color: var(--smartstock-accent-strong); }
@@ -196,7 +196,7 @@ import { InventoryMovement } from '../../core/models/inventory-movement.model';
     .panel-card mat-card-header { padding: 22px 22px 10px; }
     .panel-card mat-card-content { padding: 8px 22px 18px; }
     .panel-icon { width: 40px; height: 40px; }
-    .alert-icon { background: #fff1d6; color: #8a5100; }
+    .alert-icon { background: var(--smartstock-warning-soft); color: var(--smartstock-warning); }\n    .low-stock-panel.needs-attention { border-color: color-mix(in srgb, var(--smartstock-warning) 32%, var(--smartstock-border)); box-shadow: inset 3px 0 0 var(--smartstock-warning); }
     mat-card-title { font-size: 1rem; font-weight: 750; }
     mat-card-subtitle { margin-top: 3px; color: var(--smartstock-muted); font-size: .8rem; }
     .data-list { list-style: none; padding: 0; margin: 0; }
@@ -206,14 +206,14 @@ import { InventoryMovement } from '../../core/models/inventory-movement.model';
     .item-copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; }
     .item-copy span { color: var(--smartstock-muted); font-size: .76rem; }
     .stock-chip { flex: 0 0 auto; padding: 6px 9px; border-radius: 999px; background: var(--smartstock-accent-soft); color: var(--smartstock-accent-strong); font-size: .76rem; font-weight: 800; }
-    .stock-chip.alert { background: #fff1d6; color: #8a5100; }
+    .stock-chip.alert { background: var(--smartstock-warning-soft); color: var(--smartstock-warning); }
     .rank { display: grid; width: 28px; height: 28px; flex: 0 0 28px; place-items: center; border-radius: 9px; background: var(--smartstock-page); color: var(--smartstock-muted); font-size: .75rem; font-weight: 800; }
     .movements-card { overflow: hidden; }
     .movement-leading { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border-radius: 50%; background: var(--smartstock-accent-soft); color: var(--smartstock-accent-strong); }
-    .movement-leading.outgoing { background: #fde9e7; color: #a33b32; }
+    .movement-leading.outgoing { background: var(--smartstock-danger-soft); color: var(--smartstock-danger); }
     .movement-leading mat-icon { width: 18px; height: 18px; font-size: 18px; }
     .movement-amount { flex: 0 0 auto; color: var(--smartstock-accent-strong); font-size: .84rem; font-weight: 800; }
-    .movement-amount.out { color: #a33b32; }
+    .movement-amount.out { color: var(--smartstock-danger); }
     .empty-state, .state-panel { display: flex; align-items: center; gap: 14px; padding: 24px; border: 1px dashed var(--smartstock-border); border-radius: 14px; background: var(--smartstock-page); color: var(--smartstock-muted); }
     .empty-state.compact { margin-top: 4px; padding: 18px; }
     .empty-state mat-icon { color: var(--smartstock-accent); }
