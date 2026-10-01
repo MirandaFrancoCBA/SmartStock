@@ -34,11 +34,11 @@ import { MovementType } from '../../../../core/models/inventory-movement.model';
     .dialog-heading h2 { margin: 0; font-size: 1.2rem; }
     .dialog-heading p { margin: 3px 0 0; color: var(--smartstock-muted); font-size: .78rem; font-weight: 400; }
     .dialog-icon { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border-radius: 12px; background: var(--smartstock-accent-soft); color: var(--smartstock-accent-strong); }
-    mat-dialog-content { padding-top: 8px !important; }
+    mat-dialog-content { overflow-x: hidden; padding-top: 8px !important; }
     .stock-summary { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 11px 13px; border: 1px solid var(--smartstock-border); border-radius: 11px; background: var(--smartstock-page); }
     .stock-summary span { color: var(--smartstock-muted); font-size: .78rem; }
     .stock-summary strong { color: var(--smartstock-accent-strong); font-size: .92rem; }
-    .form-container { display: flex; min-width: min(390px, 70vw); flex-direction: column; gap: 10px; }
+    .form-container { display: flex; width: 100%; min-width: 0; flex-direction: column; gap: 10px; }
     .movement-preview { display: flex; align-items: center; gap: 10px; margin-top: 4px; padding: 12px; border: 1px solid transparent; border-radius: 11px; background: var(--smartstock-success-soft); color: var(--smartstock-success); }
     .movement-preview.outgoing { border-color: var(--smartstock-danger); background: var(--smartstock-danger-soft); color: var(--smartstock-danger); }
     .movement-preview div { display: flex; flex-direction: column; gap: 2px; }
@@ -47,7 +47,7 @@ import { MovementType } from '../../../../core/models/inventory-movement.model';
     mat-dialog-actions { gap: 6px; padding: 14px 24px 20px; }
     .primary-action { background: var(--smartstock-brand-gradient); color: var(--smartstock-on-accent); }
     .primary-action.outgoing { background: var(--smartstock-danger); }
-    @media (max-width: 520px) { .form-container { min-width: 0; } .dialog-heading p { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
+    @media (max-width: 520px) { mat-dialog-actions { flex-wrap: wrap; } .primary-action { flex: 1 1 190px; } .dialog-heading p { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
   `]
 })
 export class StockAdjustComponent {
