@@ -167,7 +167,7 @@ import { Category, Supplier } from '../../core/models/catalog.model';
     .feedback.error { border: 1px solid var(--smartstock-danger); background: var(--smartstock-danger-soft); color: var(--smartstock-danger); }
     .feedback span { flex: 1; font-size: .84rem; }
     @media (max-width: 1050px) { .catalog-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 650px) { .page-header { align-items: stretch; flex-direction: column; } .catalog-summary { align-self: flex-start; } .catalog-card mat-card-header { padding: 18px 18px 8px; } .catalog-card mat-card-content { padding: 8px 18px 16px; } .form-grid, .supplier-form { grid-template-columns: 1fr; } .supplier-form mat-form-field:first-child { grid-column: auto; } .catalog-row { align-items: flex-start; padding: 12px 0; } .row-actions { margin-left: auto; } }
+    @media (max-width: 650px) { .page-header { align-items: stretch; flex-direction: column; } .catalog-summary { align-self: flex-start; } .catalog-card mat-card-header { padding: 18px 18px 8px; } .catalog-card mat-card-content { padding: 8px 18px 16px; } .form-grid, .supplier-form { grid-template-columns: 1fr; } .supplier-form mat-form-field:first-child { grid-column: auto; } .catalog-row { align-items: flex-start; padding: 12px 0; } .row-actions { margin-left: auto; } .row-actions button { min-width: 44px; min-height: 44px; } .actions .primary-action { width: 100%; } }
   `]
 })
 export class CatalogManagementComponent implements OnInit {

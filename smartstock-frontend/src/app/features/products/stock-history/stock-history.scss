@@ -33,4 +33,4 @@ tr.mat-mdc-row:hover { background: var(--smartstock-page); }
 .state-panel span { font-size: .78rem; }
 .state-panel.empty > mat-icon { color: var(--smartstock-accent); }
 .state-panel.error { border-color: var(--smartstock-danger); background: var(--smartstock-danger-soft); color: var(--smartstock-danger); }
-@media (max-width: 650px) { .page-header { align-items: stretch; flex-direction: column; } .page-header button { align-self: flex-start; } .history-card mat-card-content { padding: 14px; } .state-panel { align-items: flex-start; flex-wrap: wrap; justify-content: flex-start; } }
+@media (max-width: 650px) { .page-header { align-items: stretch; flex-direction: column; } .page-header button { width: 100%; } .history-card mat-card-content { padding: 14px; } .state-panel { align-items: flex-start; flex-wrap: wrap; justify-content: flex-start; } }
