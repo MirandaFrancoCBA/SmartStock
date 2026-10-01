@@ -39,14 +39,14 @@ import { MovementType } from '../../../../core/models/inventory-movement.model';
     .stock-summary span { color: var(--smartstock-muted); font-size: .78rem; }
     .stock-summary strong { color: var(--smartstock-accent-strong); font-size: .92rem; }
     .form-container { display: flex; min-width: min(390px, 70vw); flex-direction: column; gap: 10px; }
-    .movement-preview { display: flex; align-items: center; gap: 10px; margin-top: 4px; padding: 12px; border-radius: 11px; background: var(--smartstock-accent-soft); color: var(--smartstock-accent-strong); }
-    .movement-preview.outgoing { background: #fde9e7; color: #a33b32; }
+    .movement-preview { display: flex; align-items: center; gap: 10px; margin-top: 4px; padding: 12px; border: 1px solid transparent; border-radius: 11px; background: var(--smartstock-success-soft); color: var(--smartstock-success); }
+    .movement-preview.outgoing { border-color: var(--smartstock-danger); background: var(--smartstock-danger-soft); color: var(--smartstock-danger); }
     .movement-preview div { display: flex; flex-direction: column; gap: 2px; }
     .movement-preview strong { font-size: .8rem; }
     .movement-preview span { font-size: .73rem; }
     mat-dialog-actions { gap: 6px; padding: 14px 24px 20px; }
-    .primary-action { background: var(--smartstock-accent-strong); color: white; }
-    .primary-action.outgoing { background: #a33b32; }
+    .primary-action { background: var(--smartstock-brand-gradient); color: var(--smartstock-on-accent); }
+    .primary-action.outgoing { background: var(--smartstock-danger); }
     @media (max-width: 520px) { .form-container { min-width: 0; } .dialog-heading p { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
   `]
 })
