@@ -146,9 +146,9 @@ import { Category, Supplier } from '../../core/models/catalog.model';
     .supplier-form { grid-template-columns: 1fr 1fr; }
     .supplier-form mat-form-field:first-child { grid-column: 1 / -1; }
     .actions, .row-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .primary-action { background: var(--smartstock-accent-strong); color: white; }
+    .primary-action { background: var(--smartstock-brand-gradient); color: var(--smartstock-on-accent); }
     .list { display: grid; }
-    .catalog-row { display: flex; align-items: center; gap: 11px; min-height: 64px; border-top: 1px solid var(--smartstock-border); }
+    .catalog-row { display: flex; align-items: center; gap: 11px; min-height: 64px; border-top: 1px solid var(--smartstock-border); transition: background var(--smartstock-transition); }\n    .catalog-row:hover { background: var(--smartstock-surface-subtle); }
     .row-icon { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 9px; }
     .row-icon mat-icon { width: 17px; height: 17px; font-size: 17px; }
     .row-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 3px; }
@@ -157,14 +157,14 @@ import { Category, Supplier } from '../../core/models/catalog.model';
     .row-actions { flex: 0 0 auto; }
     .row-actions button { color: var(--smartstock-muted); }
     .row-actions button:hover { color: var(--smartstock-accent-strong); }
-    .row-actions .danger-action:hover { color: #a33b32; }
+    .row-actions .danger-action:hover { color: var(--smartstock-danger); }
     .empty-state { display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 18px; border: 1px dashed var(--smartstock-border); border-radius: 13px; background: var(--smartstock-page); color: var(--smartstock-muted); }
     .empty-state > mat-icon { color: var(--smartstock-accent); }
     .empty-state div { display: flex; flex-direction: column; gap: 2px; }
     .empty-state strong { color: var(--mat-sys-on-surface); font-size: .84rem; }
     .empty-state span { font-size: .75rem; }
     .feedback { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 13px; }
-    .feedback.error { border: 1px solid #efc6c2; background: #fff5f4; color: #a33b32; }
+    .feedback.error { border: 1px solid var(--smartstock-danger); background: var(--smartstock-danger-soft); color: var(--smartstock-danger); }
     .feedback span { flex: 1; font-size: .84rem; }
     @media (max-width: 1050px) { .catalog-grid { grid-template-columns: 1fr; } }
     @media (max-width: 650px) { .page-header { align-items: stretch; flex-direction: column; } .catalog-summary { align-self: flex-start; } .catalog-card mat-card-header { padding: 18px 18px 8px; } .catalog-card mat-card-content { padding: 8px 18px 16px; } .form-grid, .supplier-form { grid-template-columns: 1fr; } .supplier-form mat-form-field:first-child { grid-column: auto; } .catalog-row { align-items: flex-start; padding: 12px 0; } .row-actions { margin-left: auto; } }
