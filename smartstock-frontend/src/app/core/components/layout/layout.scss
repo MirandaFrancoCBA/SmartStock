@@ -28,7 +28,8 @@
   height: 42px;
   place-items: center;
   border-radius: 12px;
-  background: var(--smartstock-accent);
+  background: var(--smartstock-brand-gradient);
+  box-shadow: 0 8px 22px rgba(101, 54, 198, 0.22);
   color: var(--smartstock-on-accent);
   font-weight: 800;
   letter-spacing: -0.04em;
@@ -41,6 +42,12 @@
 
 .brand strong {
   font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.brand-copy span {
+  margin-top: 2px;
+  font-weight: 600;
 }
 
 .brand span,
@@ -64,8 +71,21 @@
 }
 
 .nav-list .active-link {
+  position: relative;
   background: var(--smartstock-accent-soft);
   color: var(--smartstock-accent-strong);
+  font-weight: 700;
+}
+
+.nav-list .active-link::before {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--smartstock-brand-gradient);
+  content: '';
 }
 
 .sidebar-footer {
@@ -115,8 +135,8 @@
   padding: 6px 10px;
   border: 1px solid var(--smartstock-border);
   border-radius: 999px;
-  color: var(--smartstock-muted);
-  background: var(--smartstock-surface);
+  background: var(--smartstock-accent-soft);
+  color: var(--smartstock-accent-strong);
   font-size: 0.76rem;
   font-weight: 700;
 }

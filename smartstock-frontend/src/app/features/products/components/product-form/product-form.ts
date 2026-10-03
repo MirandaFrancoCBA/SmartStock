@@ -49,10 +49,10 @@ import { Category, Supplier } from '../../../../core/models/catalog.model';
     .feedback { display: flex; align-items: center; gap: 9px; margin-top: 10px; padding: 11px 13px; border-radius: 11px; font-size: .78rem; }
     .feedback mat-icon { flex: 0 0 auto; }
     .feedback.neutral { background: var(--smartstock-page); color: var(--smartstock-muted); }
-    .feedback.warning { background: #fff7e8; color: #8a5100; }
-    .feedback.error { background: #fff5f4; color: #a33b32; }
+    .feedback.warning { background: var(--smartstock-warning-soft); color: var(--smartstock-warning); }
+    .feedback.error { background: var(--smartstock-danger-soft); color: var(--smartstock-danger); }
     mat-dialog-actions { gap: 6px; padding: 14px 24px 20px; }
-    .primary-action { background: var(--smartstock-accent-strong); color: white; }
+    .primary-action { background: var(--smartstock-brand-gradient); color: var(--smartstock-on-accent); }
     @media (max-width: 650px) { .dialog-heading p { display: none; } mat-dialog-actions { padding-inline: 16px; } }
   `],
 })
@@ -68,7 +68,7 @@ export class ProductFormComponent implements OnInit {
     forkJoin({ categories: this.productService.getCategories(), suppliers: this.productService.getSuppliers() }).subscribe({ next: ({ categories, suppliers }) => { this.categories.set(categories); this.suppliers.set(suppliers); this.loadingCatalog.set(false); }, error: () => { this.catalogError.set('No se pudieron cargar categorías y proveedores.'); this.loadingCatalog.set(false); } });
   }
   onSubmit() {
-    if (this.productForm.invalid || this.loadingCatalog()) return;
+    if (this.productForm.invalid || this.loadingCatalog()) { this.productForm.markAllAsTouched(); return; }
     this.saveError.set(null); const productData = this.productForm.getRawValue();
     const obs = this.data ? this.productService.updateProduct(this.data.id!, productData as Partial<Product>) : this.productService.createProduct(productData as Partial<Product>);
     obs.subscribe({ next: () => this.dialogRef.close(true), error: () => this.saveError.set('No se pudo guardar el producto. Revisá los datos e intentá nuevamente.') });
